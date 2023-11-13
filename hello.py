@@ -1,1 +1,3 @@
-print('hello from Shelly')
+
+print('hello from both')
+
