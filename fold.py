@@ -1,10 +1,9 @@
 #this was the_tool_shelly_sec_part
 import os
 import subprocess
-import the_tool_shelly_updated as first
-from get_fasta_itamar import genome_reader
-import create_list_of_distances_from_editing_site as l_dis
-import main as m
+import pre_fold as first
+from get_fasta import genome_reader
+import create_list_of_distance as l_dis
 import abblast as blast
 import post_fold_analysis as post_fold
 
@@ -107,7 +106,7 @@ def get_output_max_distance_tool(dis_list, location_of_site):
 
 def get_output_default_tool(dis_list, location_of_site):
     # call the func based on default scope
-    start, end = l_dis.defaultive_distance(dis_list, location_of_site)
+    start, end = l_dis.default_distance(dis_list, location_of_site)
     return start, end
 
 def get_output_ABblast_tool():
