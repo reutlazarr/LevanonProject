@@ -1,5 +1,5 @@
 import subprocess
-from get_fasta_itamar import genome_reader
+from get_fasta import genome_reader
 from Bio import SeqIO
 from Bio.Seq import Seq
 import os

@@ -6,6 +6,11 @@ from get_fasta import genome_reader
 import create_list_of_distance as l_dis
 import abblast as blast
 import post_fold_analysis as post_fold
+import json
+import os
+
+def is_file_empty(file_path):
+    return os.path.isfile(file_path) and os.path.getsize(file_path) == 0
 
 # shape file - contains which sites we want to color 
 def run_drawRNAstructure(path_ct_file, path_shape_file, path_svg_file):
@@ -27,7 +32,19 @@ def run_bpRNA(path_to_bpRNA_result, site_dir):
     out_f = path_to_bpRNA_result.split("/")[-1]
     # get rid of the dbn suffix
     out_f = remove_suffix(out_f, os.path.splitext(out_f)[1]) + ".st"
-    return site_dir + out_f
+    st_path = site_dir + out_f
+    return st_path
+
+def create_bpRNA_path(path_to_bpRNA_result, site_dir):
+        # create out file name
+    out_f = path_to_bpRNA_result.split("/")[-1]
+    # get rid of the dbn suffix
+    out_f = remove_suffix(out_f, os.path.splitext(out_f)[1]) + ".st"
+    st_path = site_dir + out_f
+    return st_path
+
+
+
 
 def remove_suffix(input_string, suffix):
     if suffix and input_string.endswith(suffix):
@@ -160,16 +177,26 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool_typ
     fasta_seq_to_fold= write_to_fasta_file(location_of_site, seq_converted, chr, tool_type, tool_dir, distance) 
     # convert to dbn file
     # send it to the folding program:
-    path_to_mxfold2_result = run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result)
+    if is_file_empty(path_to_mxfold2_result):
+        path_to_mxfold2_result = run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result)
+        print("Mxfold result wasn't empty")
     print(f"after mx by {tool_type}")
-    convert_dbn_to_ct(path_to_mxfold2_result, ct_file_path)
+
+    if is_file_empty(ct_file_path):
+        convert_dbn_to_ct(path_to_mxfold2_result, ct_file_path)
+        print("ct_file wasn't empty")
     print(f"after convertion to ct by {tool_type}")
-    run_drawRNAstructure(ct_file_path, shape_file_path, svg_file_path)
+
+    if is_file_empty(ct_file_path) and is_file_empty(shape_file_path) and is_file_empty(svg_file_path):
+        run_drawRNAstructure(ct_file_path, shape_file_path, svg_file_path)
+        print("drawRNAstructure wasn't empty")
     print(f"after drawRNAst by {tool_type}")
     
     # copy everything that's inside the mxfolded file 
     # shutil.copyfile(path_to_mxfold2_result, path_to_bpRNA_result)
-    st_path = run_bpRNA(path_to_mxfold2_result, tool_dir)
+    st_path = create_bpRNA_path(path_to_mxfold2_result, tool_dir)
+    if is_file_empty(st_path):
+        st_path = run_bpRNA(path_to_mxfold2_result, tool_dir)
     print(f"after bpRNA by {tool_type}")
     return st_path
 
@@ -215,6 +242,10 @@ def run_by_tool_type(tool_type1, dis_list, location_of_site, chr, genome_path, s
     st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool_type1, dir)
     return start_point, end_point , st_path
 
+def open_json_file_for_reading(file):
+    with open (file, 'r') as sites_from_genome_dict:
+        sites_from_genome = json.load(sites_from_genome_dict)
+        return sites_from_genome
 # for specific site of interest extracted by the file "site of interest":
 # check the gene and strand - find the suitable key in the dictionary
 # create a list of the distances from our site of interest to each one of the sites
@@ -223,7 +254,7 @@ def run_by_tool_type(tool_type1, dis_list, location_of_site, chr, genome_path, s
 def united_main():
     # This file contains the known editing sites from genome saved as a dictionary
     sites_from_genome_path = '/private10/Projects/Reut_Shelly/our_tool/data/whole_dict.json'
-    sites_from_genome = m.open_json_file_for_reading(sites_from_genome_path)
+    sites_from_genome = open_json_file_for_reading(sites_from_genome_path)
     # sites_of_interest_path = user_interface()
     # This file contains the editing sites we want to examine given by the user
     bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/sites_second_sample.bed"
@@ -249,7 +280,8 @@ def united_main():
             site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis/{chr}_{location_of_site}/"
             if not os.path.exists(site_dir):
                 os.mkdir(site_dir)
-            tool_types_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
+            tool_types_list = ["default_tool"]
+            #tool_types_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
             for tool_type in tool_types_list:
                 start, end, st_path = run_by_tool_type(tool_type, dis_list, location_of_site, chr, genome_path, site_dir)
                 post_fold.main_analysis(start, end, st_path, location_of_site)
