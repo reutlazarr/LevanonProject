@@ -1,10 +1,5 @@
-
-
-
 import pandas as pd 
 import csv
-
-
 # split the file's lines and define the file
 def process_st_file_by_lines(st_file):
     # open the st file
