@@ -1,5 +1,4 @@
 import re
-import csv_analysis_file_new
 
 # the function will take the original numbering and change it to match the new numbering of the coloring software
 def ReNumber_the_sequence(start, end, location_of_site):
@@ -15,7 +14,7 @@ def parse_st_file(st_file, location_of_site):
         for line in data:
             if "segment" in line:
                 l = regex.split(line)
-                pattern_of_bp = re.compile(r"(\d+)bp")
+                stem_length = l[0][1]
                 range1 = l[1].strip() 
                 range1 = {
                     "start": int(range1.split(".")[0]), 
@@ -37,15 +36,7 @@ def parse_st_file(st_file, location_of_site):
                         range2["end"],
                     )
                     seqs_of_segment = (l[2], l[-1].strip("\n"))
-                    match = re.compile(r"(\d+)bp").match(line)
-                    # Check if the pattern matched
-                    if match:
-                        stem_length =  match.group(1)
-                         #Handle the case where the pattern did not match
-                    else:
-                         stem_length = None
                     return (coords_of_segment, seqs_of_segment, stem_length)
-        # if we our editng site is in any segment
         return (0, 0)
 
 def main_analysis(start, end, st_path, location_of_site):
