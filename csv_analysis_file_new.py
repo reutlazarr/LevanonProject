@@ -63,9 +63,11 @@ def create_df_structure(csv_file_path, overwrite=False):
 def fill_df_with_data(pos_of_editing_site, csv_file_path, list_of_features, df_in_csv_file):
     m_count, s_count, h_count, i_count, e_count, b_count = categorize_features(list_of_features)
     # call function that extracts nuc's structural feature
-    # @@ - we need to add editing location feature!!!
     new_row = {
     "editing location site": pos_of_editing_site,
+    # list_of_featurs[pos_of_editing_site - location of first base in segment]
+    "editing site feature": list_of_features[pos_of_editing_site],
+    "segment size": "call itamar's func",
     "number of I": i_count,
     "number of S": s_count,
     "number of H": h_count,
@@ -80,6 +82,12 @@ def fill_df_with_data(pos_of_editing_site, csv_file_path, list_of_features, df_i
     # Write the updated DataFrame back to the CSV file
     df_in_csv_file.to_csv(csv_file_path, index=False)
     return df_in_csv_file
+
+
+def adjacent_bases(pos_of_editing_site) {
+    
+}
+
 
 
 # iterate list_of_seq, list_of_features and count how many feature of each type there are
@@ -111,6 +119,7 @@ def mini_main():
     st_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis/chr1_10003145/default_tool/10003145_default_tool_mxfolded.st"
     pos_of_editing_site = 100
     range_of_interest = 40
+    
     # split st_file by lines
     name, seq_length, cur_sequence, cur_structure, features = process_st_file_by_lines(st_file_path)
     # extract start position and end position
