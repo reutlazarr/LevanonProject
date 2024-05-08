@@ -280,10 +280,11 @@ def united_main():
             site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis/{chr}_{location_of_site}/"
             if not os.path.exists(site_dir):
                 os.mkdir(site_dir)
-            tool_types_list = ["default_tool"]
+            tool_types_list = ["ratio_based_tool"]
             #tool_types_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
             for tool_type in tool_types_list:
                 start, end, st_path = run_by_tool_type(tool_type, dis_list, location_of_site, chr, genome_path, site_dir)
+                print (f"the original start is : {start} ,the original end is: {end} ,the original location of site is: {location_of_site}")
                 post_fold.main_analysis(start, end, st_path, location_of_site)
             print("done")
 
@@ -292,21 +293,6 @@ if __name__ == "__main__":
     united_main()
 
 
-
-###
-# chr = "chrY"
-# location_of_site = "3218829"
-# path_to_mxfold2_result = "/private10/Projects/Reut_Shelly/our_tool/data/chr_plus_site_of_interest/3218829_chrY_dir/3218829_default_tool_mxfolded.dbn"
-# path_to_bpRNA_result = "/private10/Projects/Reut_Shelly/our_tool/data/chr_plus_site_of_interest/3218829_chrY_dir/path_ex.dbn"
-# os.chdir(f"/private10/Projects/Reut_Shelly/our_tool/data/chr_plus_site_of_interest/{location_of_site}_{chr}_dir/")
-# # copy everything that's inside the mxfolded file 
-# # cmd_copy = "cp path_to_mxfold2_result path_to_bpRNA_result"
-# # subprocess.run(cmd_copy, capture_output=True, text=True)
-# shutil.copyfile(path_to_mxfold2_result, path_to_bpRNA_result)
-
-# site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/chr_plus_site_of_interest/3218829_chrY_dir/"
-# run_bpRNA(path_to_bpRNA_result, site_dir)
-# print("after bpRNA")
 
 
 

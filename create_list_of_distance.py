@@ -37,7 +37,7 @@ def create_list_of_distances_from_editing_site(chr_of_editing_site, location_sit
     
     #Sorting by proximity to the given editing site
     sorted_dis_list = sorted(dis_list, key=lambda x: x[1])
-     
+    print("sorted distance list is:" ,  sorted_dis_list)
     return sorted_dis_list
 
 
