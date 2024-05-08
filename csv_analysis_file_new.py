@@ -1,6 +1,10 @@
 import os
 import pandas as pd 
 import csv
+# 1 create the df 
+def create_empty_df():
+    general_df = pd.DataFrame(columns=['segment length', 'complementary strand base', '-30', '-29', '-28', '-27', '-26', '-25', '-24', '-23', '-22', '-21', '-20', '-19', '-18', '-17', '-16', '-15', '-14', '-13', '-12', '-11', '-10', '-9', '-8', '-7', '-6', '-5', '-4', '-3', '-2', '-1', '0 - site feature', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30'])
+    return general_df
 # split the file's lines and define the file
 def process_st_file_by_lines(st_file):
     # open the st file
@@ -20,13 +24,18 @@ def process_st_file_by_lines(st_file):
     features = all_file[5]
     return name, seq_length, cur_sequence, cur_structure, features
 
+# 2 change pos_of_editing_site based on the genome so that it would fit the file index
+
+
 def extract_start_and_end_position(pos_of_editing_site, range_of_interest):
     # the interesting part - probably 40 bases for each site
     start_position = pos_of_editing_site - range_of_interest
     end_position = pos_of_editing_site + range_of_interest
     return start_position, end_position
+
 # the func's output is two lists in which the first one is the sites evolving bases and the second one is the site's structures
 # it uses "iterate string"
+# 2 - create a df and insert each value in it
 def create_list_of_features(cur_sequence, features, start_position, end_position):   
     list_of_seq_empty = []
     list_of_features_empty = []
@@ -84,15 +93,11 @@ def fill_df_with_data(pos_of_editing_site, csv_file_path, list_of_features, df_i
     return df_in_csv_file
 
 
-def adjacent_bases(pos_of_editing_site) {
-    
-}
-
-
+# def adjacent_bases(pos_of_editing_site):
 
 # iterate list_of_seq, list_of_features and count how many feature of each type there are
 def categorize_features(list_of_features):
-    # m_count = s_count = h_count = i_count = e_count = b_count = 0
+# m_count = s_count = h_count = i_count = e_count = b_count = 0
     m_count = h_count = i_count = e_count = b_count = 0
     s_count = 0
     for letter in list_of_features:
@@ -136,4 +141,8 @@ def mini_main():
     # fill df with data, based on list of features
     fill_df_with_data(pos_of_editing_site, csv_file_path, list_of_features, df_in_csv_file)
 
+def mini_main():
+    print(create_empty_df())
+
 mini_main()
+
