@@ -1,6 +1,7 @@
 import os
 import pandas as pd 
 import csv
+import post_fold_analysis
 # 1 create the df 
 def create_empty_df():
     general_df = pd.DataFrame(columns=['segment length', 'complementary strand base', '-30', '-29', '-28', '-27', '-26', '-25', '-24', '-23', '-22', '-21', '-20', '-19', '-18', '-17', '-16', '-15', '-14', '-13', '-12', '-11', '-10', '-9', '-8', '-7', '-6', '-5', '-4', '-3', '-2', '-1', '0 - site feature', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30'])
@@ -143,6 +144,9 @@ def mini_main():
 
 def mini_main():
     print(create_empty_df())
+    # extract segment
+    # convert genome indices to segment's indices
+    post_fold_analysis.extract_segment()
 
 mini_main()
 
