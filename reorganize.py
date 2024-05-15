@@ -8,17 +8,17 @@ def extract_site_from_sites_of_interest(df):
 
 def is_gene_in_sites_from_genome(gene, data):
 
-def unique_genes(data):
+removed - def unique_genes(data):
 
-def create_the_dictionary_structure(sites_from_genome):
+removed - def create_the_dictionary_structure(sites_from_genome):
 
 def iterrows(sites_from_genome):
 
-def print_values_of_dict():
+removed - def print_values_of_dict():
 
-def remove_keys_with_empty_values(dict):
+removed - def remove_keys_with_empty_values(dict):
 
-def group_editing_sites_by_gene_and_strand(sites_from_genome_path):
+removed - def group_editing_sites_by_gene_and_strand(sites_from_genome_path):
 
 def find_num_of_sites_in_scope(dis_list, scope):
 
