@@ -14,6 +14,7 @@ def split_editing_site_to_varibles(editing_site_of_interest):
     # key_to_search_in_genome = f'{gene_of_site}' +' '+ f'{strand_of_site}'
     return chr_of_editing_site, location_site_of_interest, strand_of_site,gene_of_site,key_to_search_in_genome
 
+
 def create_list_of_distances_from_editing_site(chr_of_editing_site, location_site_of_interest, strand_of_site,gene_of_site,key_to_search_in_genome, sites_from_genome):
     #sites_from genome = {}
     #edit_site_of_interest = []
