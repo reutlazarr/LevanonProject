@@ -6,6 +6,9 @@ from get_fasta import genome_reader
 import create_list_of_distance as l_dis
 import abblast as blast
 import post_fold_analysis as post_fold
+import ratio_based_method as ratio_based_tool
+import deafult_method.py as default_tool
+import max_distance_method as max_distance_tool
 import json
 import os
 
@@ -214,11 +217,12 @@ def create_directory_by_tool_type(site_dir_path, tool_type):
         return tool_type_dir
     else : return tool_type_dir
 
-def run_by_tool_type(tool_type1, dis_list, location_of_site, chr, genome_path, site_dir):
-    dir = create_directory_by_tool_type(site_dir, tool_type1)
-    relevant_function = eval(f"get_output_{tool_type1}")
+
+def run_by_tool_type(tool_function, dis_list, location_of_site, chr, genome_path, site_dir):
+    dir = create_directory_by_tool_type(site_dir, tool_function)
+    relevant_function = eval(f'{tool_function}.{tool_function}')
     start_point, end_point = relevant_function(dis_list, location_of_site)
-    st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool_type1, dir)
+    st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool_function, dir)
     return start_point, end_point , st_path
 
 def open_json_file_for_reading(file):
@@ -239,7 +243,6 @@ def united_main():
             check_bed_file_validity(line)
             # Extract relevant fields from the line
             fields = line.strip().split('\t')
-
             # Calculate distances to each site of interest and determine their chromosome and position
             dis_list, location_of_site, chr = l_dis.pipline(fields) 
 
@@ -250,11 +253,11 @@ def united_main():
                 os.mkdir(site_dir)
             
             # List of tools for processing the sites
-            tool_types_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
+            tool_functions_list = ["get_output_default_tool", "get_output_ratio_based_tool", "get_output_max_distance_tool"]
             # Process each site with the listed tools
-            for tool_type in tool_types_list:
+            for tool_function in tool_functions_list:
                 # Run analysis for each tool, capturing analysis-specific parameters
-                start, end, st_path = run_by_tool_type(tool_type, dis_list, location_of_site, chr, genome_path, site_dir)
+                start, end, st_path = run_by_tool_type(tool_function, dis_list, location_of_site, chr, genome_path, site_dir)
                 # Print results of the tool run for verification and logging
                 print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
                 # Perform the main analysis using the obtained parameters
