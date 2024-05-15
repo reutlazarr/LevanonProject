@@ -40,7 +40,6 @@ def parse_st_file(st_file, location_of_site):
                     )
                     seqs_of_segment = (l[2], l[-1].strip("\n"))
                     return coords_of_segment or "default_coords", seqs_of_segment or "default_seqs", segment or "default_segment", length or "default_length"
-        return (0, 0)
         return coords_of_segment or "default_coords", seqs_of_segment or "default_seqs", segment or "default_segment", length or "default_length"
 
 def extract_segment(start, end, st_path, location_of_site):

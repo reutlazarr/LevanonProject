@@ -7,7 +7,7 @@ import create_list_of_distance as l_dis
 import abblast as blast
 import post_fold_analysis as post_fold
 import ratio_based_method as ratio_based_tool
-import deafult_method.py as default_tool
+import deafult_method as default_tool
 import max_distance_method as max_distance_tool
 import json
 import os
@@ -91,36 +91,6 @@ def convert_Hillel_format_to_UCSC_format(orig_bed_file, new_bed_file):
                 new_file.write(f"{chr}\t{start}\t{end}\t{gene}\t{point}\t{strand}\n")
 
 # call out four functions and send their output to the folding program
-
-def get_output_max_distance_tool(dis_list, location_of_site):
-    if len(dis_list) == 1:
-        print("SITE OF INTEREST HAS NO SURROUNDING EDITING SITES")
-        return
-    # call the func based on max distance
-    best_by_max_dis = first.max_distance(dis_list, location_of_site)
-    # chr = best_by_max_dis[4].split(": ")[1]
-    start = int(best_by_max_dis[0].split(": ")[1])
-    end = int(best_by_max_dis[1].split(": ")[1])
-    return start, end
-
-def get_output_default_tool(dis_list, location_of_site):
-    # call the func based on default scope
-    start, end = l_dis.default_distance(dis_list, location_of_site)
-    return start, end
-
-def get_output_ABblast_tool():
-    # call the func based on ABblast
-                # substrate_seq = m.abblast.substrate_seq(chr, location_of_site)
-            # # the checked_seq depends on the result of the get_output_ratio_based_tool 
-            # checked_seq = ""
-            # m.abblast.first_run_on_abblast(chr ,checked_seq ,substrate_seq)
-    # get the relevant sequence from the genome
-    # gr = genome_reader(genome_path)
-    # return(convert_dna_to_formal_format(gr.get_fasta(seq_by_AB_blast)))
-    # # send it to the folding program:
-    # seq_to_fold_AB_Blast_based = "/home/alu/aluguest/Reut_Shelly/vscode/code_shelly/seq_to_fold_AB_Blast_based.fa"
-    pass
-    
 
 # run the folding program
 def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
@@ -218,11 +188,11 @@ def create_directory_by_tool_type(site_dir_path, tool_type):
     else : return tool_type_dir
 
 
-def run_by_tool_type(tool_function, dis_list, location_of_site, chr, genome_path, site_dir):
-    dir = create_directory_by_tool_type(site_dir, tool_function)
-    relevant_function = eval(f'{tool_function}.{tool_function}')
+def run_by_tool_type(tools_list, dis_list, location_of_site, chr, genome_path, site_dir):
+    dir = create_directory_by_tool_type(site_dir, tools_list)
+    relevant_function = eval(f"{tools_list}.get_output_{tools_list}")
     start_point, end_point = relevant_function(dis_list, location_of_site)
-    st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool_function, dir)
+    st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tools_list, dir)
     return start_point, end_point , st_path
 
 def open_json_file_for_reading(file):
@@ -253,11 +223,11 @@ def united_main():
                 os.mkdir(site_dir)
             
             # List of tools for processing the sites
-            tool_functions_list = ["get_output_default_tool", "get_output_ratio_based_tool", "get_output_max_distance_tool"]
+            tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
             # Process each site with the listed tools
-            for tool_function in tool_functions_list:
+            for tools_list in tools_list:
                 # Run analysis for each tool, capturing analysis-specific parameters
-                start, end, st_path = run_by_tool_type(tool_function, dis_list, location_of_site, chr, genome_path, site_dir)
+                start, end, st_path = run_by_tool_type(tools_list, dis_list, location_of_site, chr, genome_path, site_dir)
                 # Print results of the tool run for verification and logging
                 print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
                 # Perform the main analysis using the obtained parameters
