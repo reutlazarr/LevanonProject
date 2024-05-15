@@ -39,17 +39,13 @@ def parse_st_file(st_file, location_of_site):
                         range2["end"],
                     )
                     seqs_of_segment = (l[2], l[-1].strip("\n"))
-                    return (coords_of_segment, seqs_of_segment, segment, length)
+                    return coords_of_segment or "default_coords", seqs_of_segment or "default_seqs", segment or "default_segment", length or "default_length"
         return (0, 0)
+        return coords_of_segment or "default_coords", seqs_of_segment or "default_seqs", segment or "default_segment", length or "default_length"
 
-def main_analysis(start, end, st_path, location_of_site):
+def extract_segment(start, end, st_path, location_of_site):
     new_start, new_end, new_location_of_site = ReNumber_the_sequence(start, end, location_of_site)
     print (f"the new start is : {new_start} ,the new end is: {new_end} ,the new location of site is: {new_location_of_site}")
     # coords of the location of site's segment
     coords_of_segment, seqs_of_segment, segment, length = parse_st_file(st_path, new_location_of_site)
     print (coords_of_segment, seqs_of_segment, segment, length)
-
-
-
-
-

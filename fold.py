@@ -43,9 +43,6 @@ def create_bpRNA_path(path_to_bpRNA_result, site_dir):
     st_path = site_dir + out_f
     return st_path
 
-
-
-
 def remove_suffix(input_string, suffix):
     if suffix and input_string.endswith(suffix):
         return input_string[:-len(suffix)]
@@ -246,54 +243,42 @@ def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
         sites_from_genome = json.load(sites_from_genome_dict)
         return sites_from_genome
-# for specific site of interest extracted by the file "site of interest":
-# check the gene and strand - find the suitable key in the dictionary
-# create a list of the distances from our site of interest to each one of the sites
-# add to the value 
-
+    
 def united_main():
-    # This file contains the known editing sites from genome saved as a dictionary
-    sites_from_genome_path = '/private10/Projects/Reut_Shelly/our_tool/data/whole_dict.json'
-    sites_from_genome = open_json_file_for_reading(sites_from_genome_path)
-    # sites_of_interest_path = user_interface()
-    # This file contains the editing sites we want to examine given by the user
+    # Define paths for the bed file and the genome file
     bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/sites_second_sample.bed"
-    # Open the BED file and read its content
-    # use each one of the four tools
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
+
+    # Open the BED file to process sites of interest
     with open(bed_file_path, 'r') as bed_file:
-    # Iterate through the lines of the BED file- through the editing sites of interest
+        # Read through each line in the BED file, representing different editing sites
         for line in bed_file:
-        # Split the line into fields
-            fields = line.strip().split('\t')
+            # Ensure the line is valid according to predefined criteria
             check_bed_file_validity(line)
-            # we should add function that validates the bed file's propriety
-            # Extract relevant information from BED fields
-            chr = fields[0]  # Chromosome name
-            location_of_site = int(fields[2])  # The location of the editing site is on the end location
-            gene_of_site = fields[3]  
-            strand_of_site = fields[5]
-            key_to_search_in_genome = f'{gene_of_site}' +' '+ f'{strand_of_site}'
-            # we should add call for the distance's functions
-            dis_list = l_dis.create_list_of_distances_from_editing_site(chr, location_of_site, strand_of_site,gene_of_site, key_to_search_in_genome, sites_from_genome)
-            # create new folder for each site
+            # Extract relevant fields from the line
+            fields = line.strip().split('\t')
+
+            # Calculate distances to each site of interest and determine their chromosome and position
+            dis_list, location_of_site, chr = l_dis.pipline(fields) 
+
+            # Generate a directory path for analyses specific to each site
             site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis/{chr}_{location_of_site}/"
+            # Create the directory if it does not exist
             if not os.path.exists(site_dir):
                 os.mkdir(site_dir)
-            tool_types_list = ["ratio_based_tool"]
-            #tool_types_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
+            
+            # List of tools for processing the sites
+            tool_types_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
+            # Process each site with the listed tools
             for tool_type in tool_types_list:
+                # Run analysis for each tool, capturing analysis-specific parameters
                 start, end, st_path = run_by_tool_type(tool_type, dis_list, location_of_site, chr, genome_path, site_dir)
-                print (f"the original start is : {start} ,the original end is: {end} ,the original location of site is: {location_of_site}")
-                post_fold.main_analysis(start, end, st_path, location_of_site)
+                # Print results of the tool run for verification and logging
+                print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
+                # Perform the main analysis using the obtained parameters
+                post_fold.extract_segment(start, end, st_path, location_of_site)
+            # Indicate completion of processing for the current site
             print("done")
-
 
 if __name__ == "__main__":
     united_main()
-
-
-
-
-
-

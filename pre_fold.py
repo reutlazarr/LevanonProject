@@ -2,16 +2,10 @@
 # sites_of_interest- this file contains the editing sites given by the user
 # sites_from_genome - the file contains the editing sites of hillel
 
-# import json
-# import main as m
-# import re
-import pandas as pd
-# from Bio import SeqIO
-# from Bio.SeqRecord import SeqRecord
 
+import pandas as pd
 # if we delete the columns' row, site_index should initialize to 0
 site_index = 1
-
 
 def create_df_from_bed_file(sites_of_interest):
     data = []
@@ -282,39 +276,3 @@ def get_reverse_complement(string_seq):
     complement_dict = {'N':'N','A': 'U', 'U': 'A', 'G': 'C', 'C': 'G','a': 'u', 'u': 'a', 'g': 'c', 'c': 'g'}
     reverse_complement = ''.join([complement_dict[base] for base in reverse])
     return reverse_complement
-
-
-# main
-sites_from_genome_path = "/private10/Projects/Reut_Shelly/our_tool/data/sites_from_genome.csv"
-sample_sites_from_genome_path = "/private10/Projects/Reut_Shelly/our_tool/data/sample_file.csv"
-sites_from_genome = pd.read_csv(sites_from_genome_path)
-
-df = create_df_from_bed_file("/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_sample.bed")
-sample_sites_from_genome_path = "/private10/Projects/Reut_Shelly/our_tool/data/sample_file.csv"
-united_dict = group_editing_sites_by_gene_and_strand(sample_sites_from_genome_path)
-dict_path = '/private10/Projects/Reut_Shelly/our_tool/data/whole_dict.json'
-
-
-genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-# 3
-# loc3 = 3218829
-# # #dislist is made of [site (not of interest), scope, chr]
-# dis_list3 = [(3195223, -23606, 'chrY'), (3195224, -23605, 'chrY'), (3195299, -23530, 'chrY'), (3208500, -10329, 'chrY'), (3208570, -10259, 'chrY'), (3215475, -3354, 'chrY'), (3215477, -3352, 'chrY'), (3218665, -164, 'chrY'), (3218691, -138, 'chrY'), (3218692, -137, 'chrY'), (3218826, -3, 'chrY'), (3218827, -2, 'chrY'), (3218829, 0, 'chrY')]
-
-# # # 2
-# loc2 = 100024063
-# dis_list2 = [(100024063, 0, 'chr1')]
-
-# 1
-# loc1 = 10003145
-# dis_list1 = [(9988297, -14848, 'chr1'), (10003145, 0, 'chr1'), (10004789, 1644, 'chr1'), (10006225, 3080, 'chr1')]
-
-# print(main.main())
-
-# print("site 1")
-# get_output_ratio_based_tool(dis_list1, loc1, genome_path)
-# print("site 2")
-# get_output_ratio_based_tool(dis_list2, loc2, genome_path)
-# print("site 3")
-# get_output_ratio_based_tool(dis_list3, loc3, genome_path)
-# site, end, scope, site, chrs
