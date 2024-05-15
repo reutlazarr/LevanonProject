@@ -7,10 +7,11 @@ import pandas as pd
 
 def split_editing_site_to_varibles(editing_site_of_interest):
     chr_of_editing_site = editing_site_of_interest[0]
-    location_site_of_interest = int(editing_site_of_interest[1])
-    strand_of_site= editing_site_of_interest[2]
+    location_site_of_interest = int(editing_site_of_interest[2])
+    strand_of_site= editing_site_of_interest[5]
     gene_of_site = editing_site_of_interest[3]
     key_to_search_in_genome = f'{gene_of_site}' +' '+ f'{strand_of_site}'
+    # key_to_search_in_genome = f'{gene_of_site}' +' '+ f'{strand_of_site}'
     return chr_of_editing_site, location_site_of_interest, strand_of_site,gene_of_site,key_to_search_in_genome
 
 def create_list_of_distances_from_editing_site(chr_of_editing_site, location_site_of_interest, strand_of_site,gene_of_site,key_to_search_in_genome, sites_from_genome):
@@ -25,7 +26,6 @@ def create_list_of_distances_from_editing_site(chr_of_editing_site, location_sit
         sites_at_the_same_gene_and_strand = sites_from_genome[key_to_search_in_genome]
         # Iterate over the fit editing sites in the dataframe
         for key in sites_at_the_same_gene_and_strand:
-            #.iter()
             # Access the 'Editing_Location' column value
             location_of_site_from_genome = key['Editing_Location']
             # Calculate the distance
@@ -86,11 +86,10 @@ def default_distance(dis_list, location_of_site):
 
 #def minimal_distance(sorted_dis_list):
 
-#main:
-dict_path = '/private10/Projects/Reut_Shelly/our_tool/data/whole_dict.json'
-with open (dict_path, 'r') as dict:
-    genome = json.load(dict)
-
-editing_site_of_interest = ["chrY", "3218829", "-" , "LINC00278"]
-(chr, location, strand, gene, key)= split_editing_site_to_varibles(editing_site_of_interest)
-dis_list = create_list_of_distances_from_editing_site(chr, location, strand,gene, key, genome)
+def pipline(fileds):
+    dict_path = '/private10/Projects/Reut_Shelly/our_tool/data/whole_dict.json'
+    with open (dict_path, 'r') as dict:
+        genome = json.load(dict)
+    (chr, location, strand, gene, key)= split_editing_site_to_varibles(fileds)
+    dis_list = create_list_of_distances_from_editing_site(chr, location, strand,gene, key, genome)
+    return dis_list ,location, chr
