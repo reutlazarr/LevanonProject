@@ -1,3 +1,4 @@
+
 def get_output_ratio_based_tool(dis_list, location_of_site):
     # edge case: our site of interest has no other sites in its vicinity, thus folding it is irrelevant
     if len(dis_list) == 1:
@@ -39,6 +40,7 @@ def min_distance_for_positive(dis_list):
                 else: 
                     scope_ratio_num_of_editing_sites.append(["scope: " +str(scope), "ratio: " + str(ratio), "site: " + str(site_count), "chr: " + str(chr_of_specific_site)])
     return scope_ratio_num_of_editing_sites
+
 
 def min_distance_for_negative(dis_list):
          # list of tuples cotaining scope and ratio of number of sites/ distance

@@ -4,7 +4,7 @@ import create_list_of_distance as l_dis
 def get_output_max_distance_tool(dis_list, location_of_site):
     if len(dis_list) == 1:
         print("SITE OF INTEREST HAS NO SURROUNDING EDITING SITES")
-        return
+        return 0, 0
     # call the func based on max distance
     best_by_max_dis = first.max_distance(dis_list, location_of_site)
     # chr = best_by_max_dis[4].split(": ")[1]
