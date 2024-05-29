@@ -55,7 +55,6 @@ def convert_dbn_to_ct(dbn_file, ct_file):
     path_to_sh_draw = "/private10/Projects/Reut_Shelly/our_tool/data/draw_RNA_structures/run_dot_to_ct.sh"
     subprocess.run([path_to_sh_draw, dbn_file, ct_file], capture_output=True, text=True)
 
-
 def check_bed_file_validity(line):
     new_line = line.split()
     if len(new_line) < 6:
@@ -152,7 +151,6 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool_typ
     print(f"after bpRNA by {tool_type}")
     return st_path
 
-
 def write_to_fasta_file(location_of_site, sequence, chr, tool_type, site_dir, distance):
     sequence_path_name = f"{location_of_site}_{tool_type}.fa"
     sequence_path = f"{site_dir}{sequence_path_name}"
@@ -188,17 +186,15 @@ def create_directory_by_tool_type(site_dir_path, tool_type):
         return tool_type_dir
     else : return tool_type_dir
 
-
 def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir):
-
     relevant_function = eval(f"{tool}.get_output_{tool}")
     print(relevant_function)
     start_point, end_point = relevant_function(dis_list, location_of_site)
-    st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir)
     if (start_point == 0 and end_point == 0):
-        pass
+        st_path = ""
     else:
         dir = create_directory_by_tool_type(site_dir, tool)
+        st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir)
         print("tool " + tool)
     return start_point, end_point, st_path
     
@@ -225,7 +221,7 @@ def united_main():
             dis_list, location_of_site, chr = l_dis.pipline(fields) 
 
             # Generate a directory path for analyses specific to each site
-            site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis/{chr}_{location_of_site}/"
+            site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis_shelly/{chr}_{location_of_site}/"
             # Create the directory if it does not exist
             if not os.path.exists(site_dir):
                 os.mkdir(site_dir)
