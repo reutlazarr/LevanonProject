@@ -8,7 +8,7 @@ def ReNumber_the_sequence(start, end, location_of_site):
     new_start = 1
     new_end = end - start 
     print("new end: " , end)
-    new_location_of_site = location_of_site - start + 1
+    new_location_of_site = location_of_site - start 
     print("new location of site:" , new_location_of_site)
     return (new_start, new_end, new_location_of_site)
 
