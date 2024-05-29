@@ -55,7 +55,6 @@ def convert_dbn_to_ct(dbn_file, ct_file):
     path_to_sh_draw = "/private10/Projects/Reut_Shelly/our_tool/data/draw_RNA_structures/run_dot_to_ct.sh"
     subprocess.run([path_to_sh_draw, dbn_file, ct_file], capture_output=True, text=True)
 
-
 def check_bed_file_validity(line):
     new_line = line.split()
     if len(new_line) < 6:
@@ -152,7 +151,6 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool_typ
     print(f"after bpRNA by {tool_type}")
     return st_path
 
-
 def write_to_fasta_file(location_of_site, sequence, chr, tool_type, site_dir, distance):
     sequence_path_name = f"{location_of_site}_{tool_type}.fa"
     sequence_path = f"{site_dir}{sequence_path_name}"
@@ -182,18 +180,25 @@ def convert_dna_to_formal_format(dna):
 def create_directory_by_tool_type(site_dir_path, tool_type):
     # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/site_of_interest_analysis/{chr}_{location_of_site}/"
     tool_type_dir = f"{site_dir_path}{tool_type}/"
+    print(tool_type_dir)
     if not os.path.exists(tool_type_dir):
         os.mkdir(tool_type_dir)
         return tool_type_dir
     else : return tool_type_dir
 
+def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir):
 
-def run_by_tool_type(tools_list, dis_list, location_of_site, chr, genome_path, site_dir):
-    dir = create_directory_by_tool_type(site_dir, tools_list)
-    relevant_function = eval(f"{tools_list}.get_output_{tools_list}")
+    relevant_function = eval(f"{tool}.get_output_{tool}")
+    print(relevant_function)
     start_point, end_point = relevant_function(dis_list, location_of_site)
-    st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tools_list, dir)
-    return start_point, end_point , st_path
+    st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir)
+    if (start_point == 0 and end_point == 0):
+        pass
+    else:
+        dir = create_directory_by_tool_type(site_dir, tool)
+        print("tool " + tool)
+    return start_point, end_point, st_path
+    
 
 def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
@@ -225,13 +230,14 @@ def united_main():
             # List of tools for processing the sites
             tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
             # Process each site with the listed tools
-            for tools_list in tools_list:
+            for tool in tools_list:
                 # Run analysis for each tool, capturing analysis-specific parameters
-                start, end, st_path = run_by_tool_type(tools_list, dis_list, location_of_site, chr, genome_path, site_dir)
+                start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir)
                 # Print results of the tool run for verification and logging
                 print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
                 # Perform the main analysis using the obtained parameters
-                post_fold.extract_segment(start, end, st_path, location_of_site)
+                # don't forget
+                # post_fold.extract_segment(start, end, st_path, location_of_site)
             # Indicate completion of processing for the current site
             print("done")
 

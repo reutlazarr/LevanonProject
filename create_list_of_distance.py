@@ -14,7 +14,6 @@ def split_editing_site_to_varibles(editing_site_of_interest):
     # key_to_search_in_genome = f'{gene_of_site}' +' '+ f'{strand_of_site}'
     return chr_of_editing_site, location_site_of_interest, strand_of_site,gene_of_site,key_to_search_in_genome
 
-
 def create_list_of_distances_from_editing_site(chr_of_editing_site, location_site_of_interest, strand_of_site,gene_of_site,key_to_search_in_genome, sites_from_genome):
     #sites_from genome = {}
     #edit_site_of_interest = []
@@ -40,7 +39,6 @@ def create_list_of_distances_from_editing_site(chr_of_editing_site, location_sit
     sorted_dis_list = sorted(dis_list, key=lambda x: x[1])
     print("sorted distance list is:" ,  sorted_dis_list)
     return sorted_dis_list
-
 
 def default_distance(dis_list, location_of_site):
     if len(dis_list) == 1:
@@ -94,3 +92,4 @@ def pipline(fileds):
     (chr, location, strand, gene, key)= split_editing_site_to_varibles(fileds)
     dis_list = create_list_of_distances_from_editing_site(chr, location, strand,gene, key, genome)
     return dis_list ,location, chr
+
