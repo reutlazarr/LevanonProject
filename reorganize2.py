@@ -5,6 +5,11 @@
 # ratio_based_method:
 # def get_output_ratio_based_tool(dis_list, location_of_site):
 
+# abblast method
+
+# max distance method:
+
+# default method
 
 
 # pre_fold

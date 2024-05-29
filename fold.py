@@ -1,4 +1,3 @@
-#this was the_tool_shelly_sec_part
 import os
 import subprocess
 import pre_fold as first
@@ -39,7 +38,7 @@ def run_bpRNA(path_to_bpRNA_result, site_dir):
     return st_path
 
 def create_bpRNA_path(path_to_bpRNA_result, site_dir):
-        # create out file name
+    # create out file name
     out_f = path_to_bpRNA_result.split("/")[-1]
     # get rid of the dbn suffix
     out_f = remove_suffix(out_f, os.path.splitext(out_f)[1]) + ".st"
@@ -54,7 +53,6 @@ def remove_suffix(input_string, suffix):
 def convert_dbn_to_ct(dbn_file, ct_file):
     path_to_sh_draw = "/private10/Projects/Reut_Shelly/our_tool/data/draw_RNA_structures/run_dot_to_ct.sh"
     subprocess.run([path_to_sh_draw, dbn_file, ct_file], capture_output=True, text=True)
-
 
 def check_bed_file_validity(line):
     new_line = line.split()
@@ -100,21 +98,33 @@ def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
 
 # create different kind of files
 # the shape file is now a default one 
+
 def create_files(location_of_site, tool_type, tool_dir):
-    # create path to ct file inside the relevant directory
-    ct_file_name = f'{location_of_site}_{tool_type}_ct_file.ct'
-    ct_file_path = r"{}{}".format(tool_dir, ct_file_name)
-    # # create path to shape file   
-    # shape_file_name = f'{location_of_site}_{tool_type}_shape_file.shape'
-    # shape_file_path = r"{}{}".format(site_dir, shape_file_name)
-    shape_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/draw_RNA_structures/my_shape.shape"
-    # create path to svg file
-    svg_file_name = f'{location_of_site}_{tool_type}_svg_file.svg'
-    svg_file_path = r"{}{}".format(tool_dir, svg_file_name)
-    # create dbn file for mxfold2
-    dbn_file_name = f'{location_of_site}_{tool_type}_mxfolded.dbn'
-    path_to_mxfold2_result = r"{}{}".format(tool_dir, dbn_file_name)
-    return ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result
+    try:
+        # Create path to ct file inside the relevant directory
+        ct_file_name = f'{location_of_site}_{tool_type}_ct_file.ct'
+        ct_file_path = os.path.join(tool_dir, ct_file_name)
+
+        # Create path to shape file
+        shape_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/draw_RNA_structures/my_shape.shape"
+
+        # Create path to svg file
+        svg_file_name = f'{location_of_site}_{tool_type}_svg_file.svg'
+        svg_file_path = os.path.join(tool_dir, svg_file_name)
+
+        # Create dbn file for mxfold2
+        dbn_file_name = f'{location_of_site}_{tool_type}_mxfolded.dbn'
+        path_to_mxfold2_result = os.path.join(tool_dir, dbn_file_name)
+
+        # Actually create the files to ensure they exist
+        open(ct_file_path, 'a').close()
+        open(svg_file_path, 'a').close()
+        open(path_to_mxfold2_result, 'a').close()
+
+        return ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result
+    except Exception as e:
+        print(f"Error in create_files: {e}")
+        return None, None, None, None
 
 # this part is shared by the four different tools
 def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool_type, tool_dir):
@@ -139,7 +149,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool_typ
         print("ct_file wasn't empty")
     print(f"after convertion to ct by {tool_type}")
 
-    if is_file_empty(ct_file_path) and is_file_empty(shape_file_path) and is_file_empty(svg_file_path):
+    if is_file_empty(svg_file_path) and not is_file_empty(ct_file_path) and not is_file_empty(shape_file_path):
         run_drawRNAstructure(ct_file_path, shape_file_path, svg_file_path)
         print("drawRNAstructure wasn't empty")
     print(f"after drawRNAst by {tool_type}")
@@ -151,7 +161,6 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool_typ
         st_path = run_bpRNA(path_to_mxfold2_result, tool_dir)
     print(f"after bpRNA by {tool_type}")
     return st_path
-
 
 def write_to_fasta_file(location_of_site, sequence, chr, tool_type, site_dir, distance):
     sequence_path_name = f"{location_of_site}_{tool_type}.fa"
@@ -182,18 +191,24 @@ def convert_dna_to_formal_format(dna):
 def create_directory_by_tool_type(site_dir_path, tool_type):
     # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/site_of_interest_analysis/{chr}_{location_of_site}/"
     tool_type_dir = f"{site_dir_path}{tool_type}/"
+    print(tool_type_dir)
     if not os.path.exists(tool_type_dir):
         os.mkdir(tool_type_dir)
         return tool_type_dir
     else : return tool_type_dir
 
-
-def run_by_tool_type(tools_list, dis_list, location_of_site, chr, genome_path, site_dir):
-    dir = create_directory_by_tool_type(site_dir, tools_list)
-    relevant_function = eval(f"{tools_list}.get_output_{tools_list}")
+def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir):
+    relevant_function = eval(f"{tool}.get_output_{tool}")
+    print(relevant_function)
     start_point, end_point = relevant_function(dis_list, location_of_site)
-    st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tools_list, dir)
-    return start_point, end_point , st_path
+    if (start_point == 0 and end_point == 0):
+        st_path = ""
+    else:
+        dir = create_directory_by_tool_type(site_dir, tool)
+        st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir)
+        print("tool " + tool)
+    return start_point, end_point, st_path
+    
 
 def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
@@ -225,13 +240,17 @@ def united_main():
             # List of tools for processing the sites
             tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
             # Process each site with the listed tools
-            for tools_list in tools_list:
+            for tool in tools_list:
                 # Run analysis for each tool, capturing analysis-specific parameters
-                start, end, st_path = run_by_tool_type(tools_list, dis_list, location_of_site, chr, genome_path, site_dir)
+                start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir)
                 # Print results of the tool run for verification and logging
                 print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
+                if not st_path:
+                    print(f"failed to get st_path for tool {tool}")
+                    continue
                 # Perform the main analysis using the obtained parameters
-                post_fold.extract_segment(start, end, st_path, location_of_site)
+                # don't forget
+                # post_fold.extract_segment(start, end, st_path, location_of_site)
             # Indicate completion of processing for the current site
             print("done")
 

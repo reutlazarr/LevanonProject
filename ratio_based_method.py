@@ -1,8 +1,9 @@
+
 def get_output_ratio_based_tool(dis_list, location_of_site):
     # edge case: our site of interest has no other sites in its vicinity, thus folding it is irrelevant
     if len(dis_list) == 1:
         print("SITE OF INTEREST HAS NO SURROUNDING EDITING SITES")
-        return
+        return 0,0
     # call the func based on best ratio
     # the output starts with scope
     min_positive = min_distance_for_positive(dis_list)
