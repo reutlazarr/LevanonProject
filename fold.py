@@ -72,28 +72,14 @@ def check_bed_file_validity(line):
         print(f"{line} \n INVALID LINE - STRAND COLUMN IS NOT VALID")
         return
 
-# hillel's format is not the identical to the UCSC format
-def convert_Hillel_format_to_UCSC_format(orig_bed_file, new_bed_file):
-    with open(orig_bed_file, 'r') as orig_file, open(new_bed_file, "w") as new_file:
-        for line in orig_file:
-            new_line = line.split()
-            # Check if the line has enough elements
-            if len(new_line) == 4:  # Assuming at least 4 columns are needed
-                chr = new_line[0]
-                start = int(new_line[1]) - 1
-                end = new_line[1]
-                strand = new_line[2]
-                gene = new_line[3] 
-                point = "."
-                # Write to the new file
-                new_file.write(f"{chr}\t{start}\t{end}\t{gene}\t{point}\t{strand}\n")
-
 # call out four functions and send their output to the folding program
 
 # run the folding program
 def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
+    print("run mx")
     path_to_script = "/private10/Projects/Reut_Shelly/our_tool/mxfold_2/run_mxfold2.sh"
     subprocess.run([path_to_script, fasta_seq_to_fold, path_to_mxfold2_result], capture_output=True, text=True)
+    print("run completed")
     return path_to_mxfold2_result
 
 # create different kind of files
@@ -127,39 +113,35 @@ def create_files(location_of_site, tool_type, tool_dir):
         return None, None, None, None
 
 # this part is shared by the four different tools
-def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool_type, tool_dir):
+def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, tool_dir):
     # create empty files
-    ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool_type, tool_dir)
+    ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool, tool_dir)
     gr = genome_reader(genome_path)
     #we should check this part! with it and without it
     unconverted_seq = gr.get_fasta(chr, int(start-1), int(end-1))
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
     distance = end - start
-    fasta_seq_to_fold= write_to_fasta_file(location_of_site, seq_converted, chr, tool_type, tool_dir, distance) 
+    fasta_seq_to_fold= write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
     # send it to the folding program:
     if is_file_empty(path_to_mxfold2_result):
         path_to_mxfold2_result = run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result)
-        print("Mxfold result wasn't empty")
-    print(f"after mx by {tool_type}")
-
+        print(f"after mx by {tool}")
     if is_file_empty(ct_file_path):
         convert_dbn_to_ct(path_to_mxfold2_result, ct_file_path)
         print("ct_file wasn't empty")
-    print(f"after convertion to ct by {tool_type}")
+    print(f"after convertion to ct by {tool}")
 
-    if is_file_empty(svg_file_path) and not is_file_empty(ct_file_path) and not is_file_empty(shape_file_path):
+    if not (is_file_empty(ct_file_path)) and not (is_file_empty(shape_file_path)) and is_file_empty(svg_file_path):
         run_drawRNAstructure(ct_file_path, shape_file_path, svg_file_path)
-        print("drawRNAstructure wasn't empty")
-    print(f"after drawRNAst by {tool_type}")
+        print(f"after drawRNAst by {tool}")
     
     # copy everything that's inside the mxfolded file 
     # shutil.copyfile(path_to_mxfold2_result, path_to_bpRNA_result)
     st_path = create_bpRNA_path(path_to_mxfold2_result, tool_dir)
-    if is_file_empty(st_path):
-        st_path = run_bpRNA(path_to_mxfold2_result, tool_dir)
-    print(f"after bpRNA by {tool_type}")
+    st_path = run_bpRNA(path_to_mxfold2_result, tool_dir)
+    print(f"after bpRNA by {tool}")
     return st_path
 
 def write_to_fasta_file(location_of_site, sequence, chr, tool_type, site_dir, distance):
@@ -209,7 +191,6 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
         print("tool " + tool)
     return start_point, end_point, st_path
     
-
 def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
         sites_from_genome = json.load(sites_from_genome_dict)
@@ -238,16 +219,17 @@ def united_main():
                 os.mkdir(site_dir)
             
             # List of tools for processing the sites
-            tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
+            tools_list = ["ratio_based_tool"]
             # Process each site with the listed tools
             for tool in tools_list:
                 # Run analysis for each tool, capturing analysis-specific parameters
                 start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir)
-                # Print results of the tool run for verification and logging
                 print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
                 if not st_path:
-                    print(f"failed to get st_path for tool {tool}")
-                    continue
+                        print(f"Failed to get st_path for tool {tool}")
+                        continue
+                # Print results of the tool run for verification and logging
+
                 # Perform the main analysis using the obtained parameters
                 # don't forget
                 # post_fold.extract_segment(start, end, st_path, location_of_site)
