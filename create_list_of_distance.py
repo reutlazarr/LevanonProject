@@ -92,3 +92,4 @@ def pipline(fileds):
     (chr, location, strand, gene, key)= split_editing_site_to_varibles(fileds)
     dis_list = create_list_of_distances_from_editing_site(chr, location, strand,gene, key, genome)
     return dis_list ,location, chr
+

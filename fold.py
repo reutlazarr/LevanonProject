@@ -82,6 +82,9 @@ def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
     print("run completed")
     return path_to_mxfold2_result
 
+# create different kind of files
+# the shape file is now a default one 
+
 def create_files(location_of_site, tool_type, tool_dir):
     try:
         # Create path to ct file inside the relevant directory
@@ -170,18 +173,24 @@ def convert_dna_to_formal_format(dna):
 def create_directory_by_tool_type(site_dir_path, tool_type):
     # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/site_of_interest_analysis/{chr}_{location_of_site}/"
     tool_type_dir = f"{site_dir_path}{tool_type}/"
+    print(tool_type_dir)
     if not os.path.exists(tool_type_dir):
         os.mkdir(tool_type_dir)
         return tool_type_dir
     else : return tool_type_dir
 
 def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir):
-    dir = create_directory_by_tool_type(site_dir, tool)
     relevant_function = eval(f"{tool}.get_output_{tool}")
+    print(relevant_function)
     start_point, end_point = relevant_function(dis_list, location_of_site)
-    st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir)
-    return start_point, end_point , st_path
-
+    if (start_point == 0 and end_point == 0):
+        st_path = ""
+    else:
+        dir = create_directory_by_tool_type(site_dir, tool)
+        st_path = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir)
+        print("tool " + tool)
+    return start_point, end_point, st_path
+    
 def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
         sites_from_genome = json.load(sites_from_genome_dict)
@@ -220,8 +229,10 @@ def united_main():
                         print(f"Failed to get st_path for tool {tool}")
                         continue
                 # Print results of the tool run for verification and logging
+
                 # Perform the main analysis using the obtained parameters
-                post_fold.extract_segment(start, end, st_path, location_of_site)
+                # don't forget
+                # post_fold.extract_segment(start, end, st_path, location_of_site)
             # Indicate completion of processing for the current site
             print("done")
 
