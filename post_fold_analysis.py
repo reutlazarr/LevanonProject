@@ -1,14 +1,17 @@
 import re
+import os
 
 # the function will take the original numbering and change it to match the new numbering of the coloring software
 def ReNumber_the_sequence(start, end, location_of_site):
     print ("old start: " , start)
     print("old end: ", end)
     print("old site: " , location_of_site)
+    start = int(round(start))
+    end = int(round(end))
     new_start = 1
-    new_end = end - start 
-    print("new end: " , end)
-    new_location_of_site = location_of_site - start 
+    new_end = end - start + 1 
+    print("new end: " , end)     
+    new_location_of_site = location_of_site - start +1 
     print("new location of site:" , new_location_of_site)
     return (new_start, new_end, new_location_of_site)
 
@@ -18,6 +21,11 @@ def parse_st_file(st_file, location_of_site):
     seqs_of_segment = "default_seqs"
     segment = "default_segment"
     length = "default_length"
+
+    # Check if the file exists
+    if not os.path.exists(st_file):
+        print(f"Error: The file {st_file} does not exist.")
+        return coords_of_segment, seqs_of_segment, segment, length
 
     with open(st_file, "r") as bpf:
         data = bpf.readlines()

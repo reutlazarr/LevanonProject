@@ -137,8 +137,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     # copy everything that's inside the mxfolded file 
     # shutil.copyfile(path_to_mxfold2_result, path_to_bpRNA_result)
     st_path = create_bpRNA_path(path_to_mxfold2_result, tool_dir)
-    if is_file_empty(st_path):
-        st_path = run_bpRNA(path_to_mxfold2_result, tool_dir)
+    st_path = run_bpRNA(path_to_mxfold2_result, tool_dir)
     print(f"after bpRNA by {tool}")
     return st_path
 
@@ -212,7 +211,6 @@ def united_main():
             
             # List of tools for processing the sites
             tools_list = ["ratio_based_tool"]
-            #tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
             # Process each site with the listed tools
             for tool in tools_list:
                 # Run analysis for each tool, capturing analysis-specific parameters
