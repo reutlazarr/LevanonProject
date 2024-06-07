@@ -14,6 +14,7 @@ def split_editing_site_to_varibles(editing_site_of_interest):
     # key_to_search_in_genome = f'{gene_of_site}' +' '+ f'{strand_of_site}'
     return chr_of_editing_site, location_site_of_interest, strand_of_site,gene_of_site,key_to_search_in_genome
 
+# each part is made of 3: the editing site location, the distance from the editing site location and the chr
 def create_list_of_distances_from_editing_site(chr_of_editing_site, location_site_of_interest, strand_of_site,gene_of_site,key_to_search_in_genome, sites_from_genome):
     #sites_from genome = {}
     #edit_site_of_interest = []
@@ -40,46 +41,7 @@ def create_list_of_distances_from_editing_site(chr_of_editing_site, location_sit
     print("sorted distance list is:" ,  sorted_dis_list)
     return sorted_dis_list
 
-def default_distance(dis_list, location_of_site):
-    if len(dis_list) == 1:
-        print("SITE OF INTEREST HAS NO SURROUNDING EDITING SITES - default is 1000")
-        start = location_of_site - 500
-        end = location_of_site + 500
-        return start, end
-    pos_dis_sum = 0
-    num_of_close_pos_sites = 0
-    neg_dis_sum = 0
-    num_of_close_neg_sites = 0
-    # print("loc: " + str(location_of_site))
-    # print(f'pos dis {pos_dis_sum}, num of close positive sites: {num_of_close_pos_sites}')
-    # print(f'neg dis {neg_dis_sum}, num of close negative sites: {num_of_close_neg_sites}')
-    for _, item in enumerate(dis_list):
-        dis = item[1]
-        if dis > 0 and dis < 10000:
-            pos_dis_sum += dis
-            num_of_close_pos_sites += 1
-        if dis < 0 and dis > -10000:
-            neg_dis_sum += dis
-            num_of_close_neg_sites += 1
-    # there are editing sites from both sides
-    if pos_dis_sum != 0 and neg_dis_sum != 0:
-        pos_dis_avg = pos_dis_sum / num_of_close_pos_sites
-        neg_dis_avg = neg_dis_sum / num_of_close_neg_sites
-        start = location_of_site + neg_dis_avg
-        end = location_of_site + pos_dis_avg
-    # # there are no editing sites in any side
-    # if pos_dis_sum == 0 and neg_dis_sum == 0:
-    # there are no editing sites in the positive side
-    if pos_dis_sum == 0:
-        neg_dis_avg = neg_dis_sum / num_of_close_neg_sites
-        start = location_of_site + neg_dis_avg
-        end = location_of_site
-     # there are no editing sites in the negative side
-    if neg_dis_sum == 0:
-        pos_dis_avg = pos_dis_sum / num_of_close_pos_sites
-        start = location_of_site
-        end = location_of_site + pos_dis_avg
-    return start, end
+
 
 #The function will find how many editing sites there are in distance of 1000 base pb
 
@@ -90,6 +52,6 @@ def pipline(fileds):
     with open (dict_path, 'r') as dict:
         genome = json.load(dict)
     (chr, location, strand, gene, key)= split_editing_site_to_varibles(fileds)
-    dis_list = create_list_of_distances_from_editing_site(chr, location, strand,gene, key, genome)
+    dis_list = create_list_of_distances_from_editing_site(chr, location, strand, gene, key, genome)
     return dis_list ,location, chr
 

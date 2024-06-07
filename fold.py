@@ -217,7 +217,7 @@ def open_json_file_for_reading(file):
     
 def united_main():
     # Define paths for the bed file and the genome file
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/sites_second_sample.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/sites_sample_shelly.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
 
     # Open the BED file to process sites of interest
@@ -230,9 +230,8 @@ def united_main():
             fields = line.strip().split('\t')
             # Calculate distances to each site of interest and determine their chromosome and position
             dis_list, location_of_site, chr = l_dis.pipline(fields) 
-
             # Generate a directory path for analyses specific to each site
-            site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis/{chr}_{location_of_site}/"
+            site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis_shelly/{chr}_{location_of_site}/"
             # Create the directory if it does not exist
             if not os.path.exists(site_dir):
                 os.mkdir(site_dir)
