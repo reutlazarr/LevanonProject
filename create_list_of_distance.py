@@ -42,7 +42,6 @@ def create_list_of_distances_from_editing_site(chr_of_editing_site, location_sit
     return sorted_dis_list
 
 
-
 #The function will find how many editing sites there are in distance of 1000 base pb
 
 #def minimal_distance(sorted_dis_list):
@@ -54,4 +53,5 @@ def pipline(fileds):
     (chr, location, strand, gene, key)= split_editing_site_to_varibles(fileds)
     dis_list = create_list_of_distances_from_editing_site(chr, location, strand, gene, key, genome)
     return dis_list ,location, chr
+
 
