@@ -26,7 +26,7 @@ def max_distance(dis_list, location_of_site):
         end = location_of_site + max_scope
         site = find_num_of_sites_in_scope(dis_list, max_scope)
     elif max_scope < 0 and min_scope < 0:
-        start = location_of_site + max_scope
+        start = location_of_site + min_scope
         end = location_of_site
         site = find_num_of_sites_in_scope(dis_list, min_scope)
     elif max_scope > 0 and min_scope < 0:
@@ -52,8 +52,17 @@ def max_distance(dis_list, location_of_site):
 # new
 def find_num_of_sites_in_scope(dis_list, scope):
     # scope is positive (loc_site_of_interest is before site)
+    # find the index of the current site
     ind_of_dis_zero = [dis_list.index(tupl) for tupl in dis_list if tupl[1] == 0]
     ind_of_cur_scope = [dis_list.index(tupl) for tupl in dis_list if tupl[1] == scope]
     # site == num of sites
+    # print(dis_list)
+    # print("ind_of_dis_zero ")
+    # print(ind_of_dis_zero)
+
+    # print("ind_of_dis_zero[0] " + ind_of_dis_zero[0])
+    # print("ind_of_cur_scope ")
+    # print(ind_of_cur_scope)
+    # print("ind_of_cur_scope[0] " + ind_of_cur_scope[0])
     site = abs(int(ind_of_cur_scope[0]) - int(ind_of_dis_zero[0]))
     return site
