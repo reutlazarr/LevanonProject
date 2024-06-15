@@ -171,7 +171,7 @@ def convert_dna_to_formal_format(dna):
 
 # create directory for each tool
 def create_directory_by_tool_type(site_dir_path, tool_type):
-    # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/site_of_interest_analysis/{chr}_{location_of_site}/"
+    # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/site_of_interest_analysis_shelly_3/{chr}_{location_of_site}/"
     tool_type_dir = f"{site_dir_path}{tool_type}/"
     print(tool_type_dir)
     if not os.path.exists(tool_type_dir):
@@ -198,7 +198,7 @@ def open_json_file_for_reading(file):
     
 def united_main():
     # Define paths for the bed file and the genome file
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/sites_second_sample.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/sites_sample_shelly.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
 
     # Open the BED file to process sites of interest
@@ -211,9 +211,8 @@ def united_main():
             fields = line.strip().split('\t')
             # Calculate distances to each site of interest and determine their chromosome and position
             dis_list, location_of_site, chr = l_dis.pipline(fields) 
-
             # Generate a directory path for analyses specific to each site
-            site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis/{chr}_{location_of_site}/"
+            site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis_shelly_3/{chr}_{location_of_site}/"
             # Create the directory if it does not exist
             if not os.path.exists(site_dir):
                 os.mkdir(site_dir)
