@@ -10,6 +10,8 @@ import deafult_method as default_tool
 import max_distance_method as max_distance_tool
 import json
 import os
+import multiprocessing
+
 
 def is_file_empty(file_path):
     return os.path.isfile(file_path) and os.path.getsize(file_path) == 0
@@ -17,7 +19,7 @@ def is_file_empty(file_path):
 # shape file - contains which sites we want to color 
 def run_drawRNAstructure(path_ct_file, path_shape_file, path_svg_file):
     # path to the script we want to runf  
-    path_to_sh_draw = "/private8/Projects/zohar/RNAstructure/itamar_code/run_drawRNAstructure.sh"
+    path_to_sh_draw = "/home/alu/aluguest/Reut_Shelly/vscode/code_reut/LevanonProject/LevanonProject/run_drawRNAstructure.sh"
     subprocess.run([path_to_sh_draw, path_ct_file, path_svg_file, path_shape_file])
 
 # variables: file - dbn. + its directory
@@ -25,7 +27,7 @@ def run_drawRNAstructure(path_ct_file, path_shape_file, path_svg_file):
 # create st file 
 def run_bpRNA(path_to_bpRNA_result, site_dir):
     # path to zohar's script
-    bpRNA_path="/private6/Projects/Yeast_Itamar_10_2022/Fold_energy/bpRNA/run_bpRNA.sh"
+    bpRNA_path="/home/alu/aluguest/Reut_Shelly/vscode/code_reut/LevanonProject/LevanonProject/run_bpRNA.sh"
     os.chdir(site_dir)
     p = subprocess.run([bpRNA_path, path_to_bpRNA_result], capture_output=True, text=True)
     # if the process fails
@@ -171,6 +173,7 @@ def convert_dna_to_formal_format(dna):
 
 # create directory for each tool
 def create_directory_by_tool_type(site_dir_path, tool_type):
+    # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/site_of_interest_analysis/{chr}_{location_of_site}/"
     tool_type_dir = f"{site_dir_path}{tool_type}/"
     print(tool_type_dir)
     if not os.path.exists(tool_type_dir):
@@ -195,43 +198,80 @@ def open_json_file_for_reading(file):
         sites_from_genome = json.load(sites_from_genome_dict)
         return sites_from_genome
     
-def united_main():
-    # Define paths for the bed file and the genome file
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/sites_sample_shelly.bed"
-    genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    # Open the BED file to process sites of interest
-    with open(bed_file_path, 'r') as bed_file:
-        # Read through each line in the BED file, representing different editing sites
-        for line in bed_file:
-            # Ensure the line is valid according to predefined criteria
-            check_bed_file_validity(line)
-            # Extract relevant fields from the line
-            fields = line.strip().split('\t')
-            # Calculate distances to each site of interest and determine their chromosome and position
-            dis_list, location_of_site, chr = l_dis.pipline(fields) 
-            # Generate a directory path for analyses specific to each site
-            site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis_shelly_4/{chr}_{location_of_site}/"
-            # Create the directory if it does not exist
-            if not os.path.exists(site_dir):
-                os.mkdir(site_dir)
-            
-            # List of tools for processing the sites
-            tools_list = ["ratio_based_tool"]
-            # Process each site with the listed tools
-            for tool in tools_list:
-                # Run analysis for each tool, capturing analysis-specific parameters
-                start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir)
-                print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
-                if not st_path:
-                        print(f"Failed to get st_path for tool {tool}")
-                        continue
-                # Print results of the tool run for verification and logging
+# def united_main():
+#     # Define paths for the bed file and the genome file
+#     bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/sites_sample_shelly.bed"
+#     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
 
-                # Perform the main analysis using the obtained parameters
-                # don't forget
-                # post_fold.extract_segment(start, end, st_path, location_of_site)
-            # Indicate completion of processing for the current site
-            print("done")
+#     # Open the BED file to process sites of interest
+#     with open(bed_file_path, 'r') as bed_file:
+#         # Read through each line in the BED file, representing different editing sites
+#         for line in bed_file:
+#             # Ensure the line is valid according to predefined criteria
+#             check_bed_file_validity(line)
+#             # Extract relevant fields from the line
+#             fields = line.strip().split('\t')
+#             # Calculate distances to each site of interest and determine their chromosome and position
+#             dis_list, location_of_site, chr = l_dis.pipline(fields) 
+#             # Generate a directory path for analyses specific to each site
+#             site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis/{chr}_{location_of_site}/"
+#             # Create the directory if it does not exist
+#             if not os.path.exists(site_dir):
+#                 os.mkdir(site_dir)
+            
+#             # List of tools for processing the sites
+#             tools_list = ["ratio_based_tool"]
+#             # Process each site with the listed tools
+#             for tool in tools_list:
+#                 # Run analysis for each tool, capturing analysis-specific parameters
+#                 start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir)
+#                 print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
+#                 if not st_path:
+#                         print(f"Failed to get st_path for tool {tool}")
+#                         continue
+#                 # Print results of the tool run for verification and logging
+
+#                 # Perform the main analysis using the obtained parameters
+#                 # don't forget
+#                 # post_fold.extract_segment(start, end, st_path, location_of_site)
+#             # Indicate completion of processing for the current site
+#             print("done")
+
+
+def process_line(line, genome_path):
+    check_bed_file_validity(line)
+    fields = line.strip().split('\t')
+    dis_list, location_of_site, chr = l_dis.pipline(fields)
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/multi_100/{chr}_{location_of_site}/"
+    # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis_multi_process/{chr}_{location_of_site}/"
+    # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis/{chr}_{location_of_site}/"
+    if not os.path.exists(site_dir):
+        os.mkdir(site_dir)
+    
+    tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
+    for tool in tools_list:
+        start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir)
+        print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
+        if not st_path:
+            print(f"Failed to get st_path for tool {tool}")
+            continue
+        # Perform the main analysis using the obtained parameters
+        # post_fold.extract_segment(start, end, st_path, location_of_site)
+    print("done")
+
+def united_main():
+    # bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/bed_files_shelly/10_editing_sites.bed"
+    # bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/bed_files_shelly/new_bed_file_shelly.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/bed_files_shelly/1000_editing_sites.bed"
+    genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
+    
+    with open(bed_file_path, 'r') as bed_file:
+        lines = bed_file.readlines()
+
+    # Use multiprocessing Pool
+    with multiprocessing.Pool(processes=35) as pool:  # Adjust the number of processes as needed
+        pool.starmap(process_line, [(line, genome_path) for line in lines])
+
 
 if __name__ == "__main__":
     united_main()
