@@ -1,6 +1,7 @@
 import create_list_of_distance as l_dis
 
 def get_output_max_distance_tool(dis_list, location_of_site):
+
     if len(dis_list) == 1:
         print("SITE OF INTEREST HAS NO SURROUNDING EDITING SITES")
         return 0, 0
@@ -9,6 +10,10 @@ def get_output_max_distance_tool(dis_list, location_of_site):
     # chr = best_by_max_dis[4].split(": ")[1]
     start = int(best_by_max_dis[0].split(": ")[1])
     end = int(best_by_max_dis[1].split(": ")[1])
+    # check if the number of bp exceeds 10000:
+    # if (abs(start - end)) > 10000:
+    #     start = location_of_site - 5000
+    #     end = location_of_site + 5000
     return start, end
 
 # chr added
@@ -55,14 +60,6 @@ def find_num_of_sites_in_scope(dis_list, scope):
     # find the index of the current site
     ind_of_dis_zero = [dis_list.index(tupl) for tupl in dis_list if tupl[1] == 0]
     ind_of_cur_scope = [dis_list.index(tupl) for tupl in dis_list if tupl[1] == scope]
-    # site == num of sites
-    # print(dis_list)
-    # print("ind_of_dis_zero ")
-    # print(ind_of_dis_zero)
 
-    # print("ind_of_dis_zero[0] " + ind_of_dis_zero[0])
-    # print("ind_of_cur_scope ")
-    # print(ind_of_cur_scope)
-    # print("ind_of_cur_scope[0] " + ind_of_cur_scope[0])
     site = abs(int(ind_of_cur_scope[0]) - int(ind_of_dis_zero[0]))
     return site
