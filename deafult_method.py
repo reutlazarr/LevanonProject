@@ -11,10 +11,6 @@ def default_distance(dis_list, location_of_site):
         print("SITE OF INTEREST HAS NO SURROUNDING EDITING SITES - default is 1000")
         start = location_of_site - 500
         end = location_of_site + 500
-        # edge case:
-        # if (start - 500 < 0) and 
-        #     pass
-        
         return start, end
     pos_dis_sum = 0
     num_of_close_pos_sites = 0

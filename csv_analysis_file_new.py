@@ -29,7 +29,7 @@ def process_st_file_by_lines(st_file):
 
 
 def extract_start_and_end_position(pos_of_editing_site, range_of_interest):
-    # the interesting part - probably 40 bases for each site
+    # the interesting part - probably 30 bases for each site
     start_position = pos_of_editing_site - range_of_interest
     end_position = pos_of_editing_site + range_of_interest
     return start_position, end_position
@@ -57,64 +57,64 @@ def extract_feature_of_editing_site():
 def check_strand_identity(coords_of_segment):
     return start_of_first_strand, end_of_first_strand, start_of_sec_strand, end_of_sec_strand, editing_on_first_strand, editing_on_sec_strand
 
-# create the data frame general structure 
-def create_df_structure(csv_file_path, overwrite=False):
-    # Specify the column names
-    column_names = ["editing location site", "number of I", "number of S", "number of H", "number of E", "number of B", "number of M", "editing site base", "editing base on the other strand"]
-    # Check if the file already exists
-    # if os.path.exists(csv_file_path) and not overwrite:
-    #     raise FileExistsError(f"File '{csv_file_path}' already exists. Set 'overwrite=True' to overwrite.")
-    # Create the DataFrame with column names
-    df_in_csv_file = pd.DataFrame(columns=column_names)
-    # Save the DataFrame to a CSV file
-    df_in_csv_file.to_csv(csv_file_path, index=False)
-    return df_in_csv_file
+# # create the data frame general structure 
+# def create_df_structure(csv_file_path, overwrite=False):
+#     # Specify the column names
+#     column_names = ["editing location site", "number of I", "number of S", "number of H", "number of E", "number of B", "number of M", "editing site base", "editing base on the other strand"]
+#     # Check if the file already exists
+#     # if os.path.exists(csv_file_path) and not overwrite:
+#     #     raise FileExistsError(f"File '{csv_file_path}' already exists. Set 'overwrite=True' to overwrite.")
+#     # Create the DataFrame with column names
+#     df_in_csv_file = pd.DataFrame(columns=column_names)
+#     # Save the DataFrame to a CSV file
+#     df_in_csv_file.to_csv(csv_file_path, index=False)
+#     return df_in_csv_file
 
-def fill_df_with_data(pos_of_editing_site, csv_file_path, list_of_features, df_in_csv_file):
-    m_count, s_count, h_count, i_count, e_count, b_count = categorize_features(list_of_features)
-    # call function that extracts nuc's structural feature
-    new_row = {
-    "editing location site": pos_of_editing_site,
-    # list_of_featurs[pos_of_editing_site - location of first base in segment]
-    "editing site feature": list_of_features[pos_of_editing_site],
-    "segment size": "call itamar's func",
-    "number of I": i_count,
-    "number of S": s_count,
-    "number of H": h_count,
-    "number of E": e_count,
-    "number of B": b_count,
-    "number of M": m_count,
-    "editing site base": "-",
-    "editing base on the other strand": "-"
-}
-    # Append the new row to the DataFrame
-    df_in_csv_file = df_in_csv_file.append(new_row, ignore_index = True) 
-    # Write the updated DataFrame back to the CSV file
-    df_in_csv_file.to_csv(csv_file_path, index=False)
-    return df_in_csv_file
+# def fill_df_with_data(pos_of_editing_site, csv_file_path, list_of_features, df_in_csv_file):
+#     m_count, s_count, h_count, i_count, e_count, b_count = categorize_features(list_of_features)
+#     # call function that extracts nuc's structural feature
+#     new_row = {
+#     "editing location site": pos_of_editing_site,
+#     # list_of_featurs[pos_of_editing_site - location of first base in segment]
+#     "editing site feature": list_of_features[pos_of_editing_site],
+#     "segment size": "call itamar's func",
+#     "number of I": i_count,
+#     "number of S": s_count,
+#     "number of H": h_count,
+#     "number of E": e_count,
+#     "number of B": b_count,
+#     "number of M": m_count,
+#     "editing site base": "-",
+#     "editing base on the other strand": "-"
+# }
+    # # Append the new row to the DataFrame
+    # df_in_csv_file = df_in_csv_file.append(new_row, ignore_index = True) 
+    # # Write the updated DataFrame back to the CSV file
+    # df_in_csv_file.to_csv(csv_file_path, index=False)
+    # return df_in_csv_file
 
 
 # def adjacent_bases(pos_of_editing_site):
 
 # iterate list_of_seq, list_of_features and count how many feature of each type there are
-def categorize_features(list_of_features):
-# m_count = s_count = h_count = i_count = e_count = b_count = 0
-    m_count = h_count = i_count = e_count = b_count = 0
-    s_count = 0
-    for letter in list_of_features:
-        if letter == "M":
-            m_count += 1
-        if letter == "S":
-            s_count += 1 
-        if letter == "H":
-            h_count += 1
-        if letter == "I":
-            i_count += 1
-        if letter == "E":
-            e_count += 1
-        if letter == "B":
-            b_count += 1
-    return m_count, s_count, h_count, i_count, e_count, b_count
+# def categorize_features(list_of_features):
+# # m_count = s_count = h_count = i_count = e_count = b_count = 0
+#     m_count = h_count = i_count = e_count = b_count = 0
+#     s_count = 0
+#     for letter in list_of_features:
+#         if letter == "M":
+#             m_count += 1
+#         if letter == "S":
+#             s_count += 1 
+#         if letter == "H":
+#             h_count += 1
+#         if letter == "I":
+#             i_count += 1
+#         if letter == "E":
+#             e_count += 1
+#         if letter == "B":
+#             b_count += 1
+#     return m_count, s_count, h_count, i_count, e_count, b_count
 
 def create_csv_file_path(dir_path, file_name):
     complete_path = os.path.join(dir_path, file_name)
@@ -124,7 +124,7 @@ def mini_main():
     # the relevant st_file
     st_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis/chr1_10003145/default_tool/10003145_default_tool_mxfolded.st"
     pos_of_editing_site = 100
-    range_of_interest = 40
+    range_of_interest = 30
     
     # split st_file by lines
     name, seq_length, cur_sequence, cur_structure, features = process_st_file_by_lines(st_file_path)
