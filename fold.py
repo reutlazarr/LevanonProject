@@ -32,12 +32,6 @@ def run_bpRNA(path_to_bpRNA_result, site_dir):
     p = subprocess.run([bpRNA_path, path_to_bpRNA_result], capture_output=True, text=True)
     # if the process fails
     assert not p.stdout, "bpRNA cant run file: " + path_to_bpRNA_result
-    # create out file name
-    out_f = path_to_bpRNA_result.split("/")[-1]
-    # get rid of the dbn suffix
-    out_f = remove_suffix(out_f, os.path.splitext(out_f)[1]) + ".st"
-    st_path = site_dir + out_f
-    return st_path
 
 def create_bpRNA_path(path_to_bpRNA_result, site_dir):
     # create out file name
