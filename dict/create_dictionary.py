@@ -86,7 +86,7 @@ def unique_genes(data):
 
 # Function to print the values of the dictionary (for debugging)
 def print_values_of_dict():
-    dict = group_editing_sites_by_gene_and_strand("/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/all_sites_converted.bed")
+    dict = group_editing_sites_by_gene_and_strand("/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/all_sites_for_dict.bed")
     for values in dict.values():
         print(values)
 
