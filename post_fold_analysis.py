@@ -6,8 +6,10 @@ def ReNumber_the_sequence(start, end, location_of_site):
     print ("old start: " , start)
     print("old end: ", end)
     print("old site: " , location_of_site)
-    start = int(round(start))
-    end = int(round(end))
+    # start = int(round(start))
+    # end = int(round(end))
+
+    #why we start from 1?
     new_start = 1
     new_end = end - start + 1 
     print("new end: " , end)     
