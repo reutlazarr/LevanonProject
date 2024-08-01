@@ -6,14 +6,15 @@ def ReNumber_the_sequence(start, end, location_of_site):
     print ("old start: " , start)
     print("old end: ", end)
     print("old site: " , location_of_site)
-    start = int(round(start))
-    end = int(round(end))
+    start = round(start)
+    end = round(end)
     new_start = 1
-    new_end = end - start + 1 
+    new_end = end - start + 1
+    delta = start - new_start 
     print("new end: " , end)     
     new_location_of_site = location_of_site - start +1 
     print("new location of site:" , new_location_of_site)
-    return (new_start, new_end, new_location_of_site)
+    return (new_start, new_end, new_location_of_site, delta)
 
 def parse_st_file(st_file, location_of_site):
     # Initialize default values
@@ -60,18 +61,27 @@ def parse_st_file(st_file, location_of_site):
                     range1["end"],
                     range2["start"],
                     range2["end"],
-                )
+                ) # range1 = { "start": 12, "end": 14}
+                # range2 = {"start": 878, "end": 880}
                 seqs_of_segment = (l[2], l[-1].strip("\n")) # seqs_of_segment is ('AGG', 'CCU')
                 break  # Ensures that you stop searching once a match is found
 
     return coords_of_segment, seqs_of_segment, segment, length
 
+def convert_to_genomic_coords(coords_of_segment, delta):
+    genomic_coords_of_segment = (
+    coords_of_segment["start"] + delta,
+    coords_of_segment["end"] + delta,
+    coords_of_segment["start"] + delta,
+    coords_of_segment["end"] + delta,
+)
+    return(genomic_coords_of_segment)
+
 def extract_segment(start, end, st_path, location_of_site):
-    new_start, new_end, new_location_of_site = ReNumber_the_sequence(start, end, location_of_site)
+    new_start, new_end, new_location_of_site, delta = ReNumber_the_sequence(start, end, location_of_site)
     print (f"the new start is : {new_start} ,the new end is: {new_end} ,the new location of site is: {new_location_of_site}")
     # coords of the location of site's segment
     coords_of_segment, seqs_of_segment, segment, length = parse_st_file(st_path, new_location_of_site)
-    # convert_to_genomic_coords(coords_of_segment, seqs_of_segment, segment, length)
-    print (coords_of_segment, seqs_of_segment, segment, length)
+    genomic_coords_of_segment = convert_to_genomic_coords(coords_of_segment, delta)
+    return(genomic_coords_of_segment, seqs_of_segment, segment, length)
 
-# def convert_to_genomic_coords(coords_of_segment, seqs_of_segment, segment, length):
