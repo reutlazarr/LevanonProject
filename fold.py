@@ -25,16 +25,17 @@ def run_drawRNAstructure(path_ct_file, path_shape_file, path_svg_file):
 # variables: file - dbn. + its directory
 # output - st. file with bdRNA output
 # create st file 
-def run_bpRNA(path_to_mxfold2_result, site_dir):
+
+def run_bpRNA(path_to_dbn_file, site_dir, st_path):
     # path to zohar's script
     bpRNA_path="/home/alu/aluguest/Reut_Shelly/vscode/code_reut/LevanonProject/LevanonProject/run_bpRNA.sh"
     os.chdir(site_dir)
-    p = subprocess.run([bpRNA_path, path_to_mxfold2_result], capture_output=True, text=True)
+    p = subprocess.run([bpRNA_path, path_to_dbn_file], capture_output=True, text=True)
     # if the process fails
-    assert not p.stdout, "bpRNA cant run file: " + path_to_mxfold2_result
+    assert not p.stdout, "bpRNA cant run file: " + path_to_dbn_file
     # Write the output to the .st file
-    # with open(st_path, 'w') as f:
-    #     f.write(p.stdout)
+    with open(st_path, 'w') as f:
+        f.write(p.stdout)
 
 
 def create_bpRNA_path(path_to_dbn_file, site_dir):
@@ -141,7 +142,9 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     # copy everything that's inside the mxfolded file 
     # shutil.copyfile(path_to_mxfold2_result, path_to_bpRNA_result)
     st_path = create_bpRNA_path(path_to_mxfold2_result, tool_dir)
-    run_bpRNA(path_to_mxfold2_result, tool_dir)
+
+    run_bpRNA(path_to_mxfold2_result, tool_dir, st_path)
+
     print(f"after bpRNA by {tool}")
     if not st_path:
        print(f"Failed to get st_path for tool {tool}")
@@ -203,7 +206,8 @@ def process_line(line, genome_path):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr = l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis2/{chr}_{location_of_site}/"
+
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
@@ -216,7 +220,7 @@ def process_line(line, genome_path):
     print("done")
 
 def united_main():
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/site.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/site.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
     with open(bed_file_path, 'r') as bed_file:
