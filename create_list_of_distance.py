@@ -47,11 +47,10 @@ def create_list_of_distances_from_editing_site(chr_of_editing_site, location_sit
 #def minimal_distance(sorted_dis_list):
 
 def pipline(fileds):
-    dict_path = '/private10/Projects/Reut_Shelly/our_tool/data/whole_dict.json'
+    dict_path = "/private10/Projects/Reut_Shelly/our_tool/data/dictionary/whole_dict.json"
     with open (dict_path, 'r') as dict:
         genome = json.load(dict)
     (chr, location, strand, gene, key)= split_editing_site_to_varibles(fileds)
     dis_list = create_list_of_distances_from_editing_site(chr, location, strand, gene, key, genome)
     return dis_list ,location, chr
-
 
