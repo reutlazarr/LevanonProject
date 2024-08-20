@@ -25,6 +25,7 @@ def run_drawRNAstructure(path_ct_file, path_shape_file, path_svg_file):
 # variables: file - dbn. + its directory
 # output - st. file with bdRNA output
 # create st file 
+
 def run_bpRNA(path_to_dbn_file, site_dir, st_path):
     # path to zohar's script
     bpRNA_path="/home/alu/aluguest/Reut_Shelly/vscode/code_reut/LevanonProject/LevanonProject/run_bpRNA.sh"
@@ -141,7 +142,9 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     # copy everything that's inside the mxfolded file 
     # shutil.copyfile(path_to_mxfold2_result, path_to_bpRNA_result)
     st_path = create_bpRNA_path(path_to_mxfold2_result, tool_dir)
+
     run_bpRNA(path_to_mxfold2_result, tool_dir, st_path)
+
     print(f"after bpRNA by {tool}")
     if not st_path:
        print(f"Failed to get st_path for tool {tool}")
@@ -203,9 +206,8 @@ def process_line(line, genome_path):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr = l_dis.pipline(fields)
+
     site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis/{chr}_{location_of_site}/"
-    # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis_multi_process/{chr}_{location_of_site}/"
-    # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_of_interest_analysis/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
@@ -214,12 +216,10 @@ def process_line(line, genome_path):
         start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir)
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
         # Perform the main analysis using the obtained parameters
-        # post_fold.extract_segment(start, end, st_path, location_of_site)
+        post_fold.extract_segment(start, end, st_path, location_of_site)
     print("done")
 
 def united_main():
-    # bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/bed_files_shelly/10_editing_sites.bed"
-    # bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/bed_files_shelly/new_bed_file_shelly.bed"
     bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/site.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     

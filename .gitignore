@@ -1,1 +1,5 @@
 __pycache__
+__pycache__/
+nohup.out
+output.log
+dict/nohup.out
