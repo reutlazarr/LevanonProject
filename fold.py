@@ -27,16 +27,17 @@ def run_drawRNAstructure(path_ct_file, path_shape_file, path_svg_file):
 # create st file 
 
 def run_bpRNA(path_to_dbn_file, site_dir, st_path):
-    # path to zohar's script
-    bpRNA_path="/home/alu/aluguest/Reut_Shelly/vscode/code_reut/LevanonProject/LevanonProject/run_bpRNA.sh"
+    bpRNA_path = "/home/alu/aluguest/Reut_Shelly/vscode/code_reut/LevanonProject/LevanonProject/run_bpRNA.sh"
+    print("link to dbn: " + path_to_dbn_file)
+    print("link to site dir: " + site_dir)
+    print("link to st path: " + st_path)
     os.chdir(site_dir)
     p = subprocess.run([bpRNA_path, path_to_dbn_file], capture_output=True, text=True)
-    # if the process fails
-    assert not p.stdout, "bpRNA cant run file: " + path_to_dbn_file
-    # Write the output to the .st file
-    with open(st_path, 'w') as f:
-        f.write(p.stdout)
-
+    with open('bpRNA_output.log', 'w') as log_file:
+        log_file.write(f"STDOUT:\n{p.stdout}\nSTDERR:\n{p.stderr}\n")
+    if os.path.getsize(st_path) == 0:
+        raise RuntimeError(f"Output .st file is empty. Something went wrong with bpRNA for file: {path_to_dbn_file}")
+    return st_path
 
 def create_bpRNA_path(path_to_dbn_file, site_dir):
     # create out file name
@@ -149,6 +150,8 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     if not st_path:
        print(f"Failed to get st_path for tool {tool}")
 
+    return st_path
+
 
 def write_to_fasta_file(location_of_site, sequence, chr, tool_type, site_dir, distance):
     sequence_path_name = f"{location_of_site}_{tool_type}.fa"
@@ -189,14 +192,18 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
     relevant_function = eval(f"{tool}.get_output_{tool}")
     print(relevant_function)
     start_point, end_point = relevant_function(dis_list, location_of_site)
+
+    # Initialize st_path to None or some default value
+    st_path = ""
+
     if (start_point == 0 and end_point == 0):
         st_path = ""
     else:
         dir = create_directory_by_tool_type(site_dir, tool)
-        common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir)
+        st_path= common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir)
         print("tool " + tool)
     return start_point, end_point, st_path
-    
+
 def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
         sites_from_genome = json.load(sites_from_genome_dict)
@@ -207,7 +214,7 @@ def process_line(line, genome_path):
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr = l_dis.pipline(fields)
 
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_update/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
@@ -220,7 +227,8 @@ def process_line(line, genome_path):
     print("done")
 
 def united_main():
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/site.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site.bed"
+    # "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/10_sites_check.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
     with open(bed_file_path, 'r') as bed_file:
