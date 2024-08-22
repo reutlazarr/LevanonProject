@@ -2,34 +2,32 @@ import re
 import os
 import pandas as pd
 
-
 # the function will take the original numbering and change it to match the new numbering of the coloring software
 def ReNumber_the_sequence(start, end, location_of_site):
-    print ("old start: " , start)
-    print("old end: ", end)
-    print("old site: " , location_of_site)
-    print(f"old end - old start in renumber the sequence {end - start}")
     start = round(start)
     end = round(end)
     new_start = 1
     new_end = end - start + 1
-    delta = start - new_start 
-    print("new end: " , new_end)     
+    delta = start - new_start  
     new_location_of_site = location_of_site - start + 1 
     print("new location of site:" , new_location_of_site)
-    print(f"new end - new start in renumber the sequence {new_end - new_start}")
     return (new_start, new_end, new_location_of_site, delta)
 
 def parse_st_file(st_file, location_of_site):
     # Initialize default values
-    coords_of_segment = pd.DataFrame(columns=["start1", "end1", "start2", "end2"])
+    # coords_of_segment = pd.DataFrame(columns=["start1", "end1", "start2", "end2"])
     seqs_of_segment = "default_seqs"
     segment = "default_segment"
     length = "default_length"
+    start_first_strand = "default" 
+    end_first_strand = "default"
+    start_second_strand = "default"
+    end_second_strand = "default"
     # Check if the file exists
     if not os.path.exists(st_file):
         print(f"Error: The file {st_file} does not exist.")
-        return coords_of_segment, seqs_of_segment, segment, length
+        # return coords_of_segment, seqs_of_segment, segment, length
+        return start_first_strand, end_first_strand, start_second_strand, end_second_strand
 
     # Open the file
     with open(st_file, "r") as bpf:
@@ -41,7 +39,6 @@ def parse_st_file(st_file, location_of_site):
         # If we are in the bottom part of the file which looks like this: "segment1 3bp 12..14 AGG 878..880 CCU"
         if "segment" in line:
             l = regex.split(line)    # Split the line this way: ['segment1 3bp', ' 12..14 ', 'AGG', ' 878..880 ', 'CCU']
-            print(l)
             segment_and_length = l[0] # 'segment1 3bp'
             
             split_segment_and_length = segment_and_length.split()
@@ -62,45 +59,33 @@ def parse_st_file(st_file, location_of_site):
                 range2["start"] <= location_of_site + 1 <= range2["end"]
             ):
                 # Create DataFrame for the requested segment
-                coords_of_segment = pd.DataFrame({
-                    "start1": [range1["start"]],
-                    "end1": [range1["end"]],
-                    "start2": [range2["start"]],
-                    "end2": [range2["end"]],
-                })
+                start_first_strand = range1["start"]
+                end_first_strand = range1["end"]
+                start_second_strand = range2["start"]
+                end_second_strand = range2["end"]
                 seqs_of_segment = (l[2], l[-1].strip("\n")) # seqs_of_segment is ('AGG', 'CCU')
                 break  # Ensures that you stop searching once a match is found
 
-    return coords_of_segment, seqs_of_segment, segment, length
+    return start_first_strand, end_first_strand, start_second_strand, end_second_strand
 
 
-def convert_to_genomic_coords(coords_of_segment, delta):
-    if coords_of_segment.empty:
-        print("Error: coords_of_segment DataFrame is empty.")
-        return pd.DataFrame(columns=["start1", "end1", "start2", "end2"])
-
-    print("coords of segmentttt\n")
-    print(coords_of_segment["start1"].iloc[0])
-    print(type(coords_of_segment["start1"].iloc[0]))
-
+def convert_to_genomic_coords(start_first_strand, end_first_strand, start_second_strand, end_second_strand, delta):
+    if start_first_strand == "default" or end_first_strand == "default" or start_second_strand == "default" or end_second_strand == "default":
+        print("Error: start/end of the segments are empty.")
+        return "empty segments"
     # Add delta to the DataFrame coordinates
-    genomic_coords_of_segment = coords_of_segment.copy()
-    genomic_coords_of_segment["start1"] += delta
-    genomic_coords_of_segment["end1"] += delta
-    genomic_coords_of_segment["start2"] += delta
-    genomic_coords_of_segment["end2"] += delta
-
-    return genomic_coords_of_segment
+    converted_start_first_strand = start_first_strand + delta
+    converted_end_first_strand = end_first_strand + delta
+    converted_start_second_strand = start_second_strand + delta
+    converted_end_second_strand = end_second_strand + delta
+    return converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand
 
 
 def extract_segment(start, end, st_path, location_of_site):
     new_start, new_end, new_location_of_site, delta = ReNumber_the_sequence(start, end, location_of_site)
-    print(f"new_start {new_start}")
-    print(f"new_end {new_end}")
     print(f"new_location_of_site {new_location_of_site}")
     print(f"the new start is : {new_start} ,the new end is: {new_end} ,the new location of site is: {new_location_of_site}")
     # coords of the location of site's segment
-    coords_of_segment, seqs_of_segment, segment, length = parse_st_file(st_path, new_location_of_site)
-    genomic_coords_of_segment = convert_to_genomic_coords(coords_of_segment, delta)
-    print(f"end - start in extract_segment {end - start}")
-    return genomic_coords_of_segment, seqs_of_segment, segment, length
+    start_first_strand, end_first_strand, start_second_strand, end_second_strand = parse_st_file(st_path, new_location_of_site)
+    converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = convert_to_genomic_coords(start_first_strand, end_first_strand, start_second_strand, end_second_strand, delta)
+    return converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand

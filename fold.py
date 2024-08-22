@@ -11,6 +11,7 @@ import max_distance_method as max_distance_tool
 import json
 import os
 import multiprocessing
+import pandas as pd
 
 
 def is_file_empty(file_path):
@@ -28,9 +29,6 @@ def run_drawRNAstructure(path_ct_file, path_shape_file, path_svg_file):
 
 def run_bpRNA(path_to_dbn_file, site_dir, st_path):
     bpRNA_path = "/home/alu/aluguest/Reut_Shelly/vscode/code_reut/LevanonProject/LevanonProject/run_bpRNA.sh"
-    print("link to dbn: " + path_to_dbn_file)
-    print("link to site dir: " + site_dir)
-    print("link to st path: " + st_path)
     os.chdir(site_dir)
     p = subprocess.run([bpRNA_path, path_to_dbn_file], capture_output=True, text=True)
     with open('bpRNA_output.log', 'w') as log_file:
@@ -125,7 +123,6 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
     distance = end - start
-    print(f"start - end in common_part_of_tool {distance}")
     fasta_seq_to_fold= write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
     # send it to the folding program:
@@ -216,7 +213,7 @@ def process_line(line, genome_path):
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr = l_dis.pipline(fields)
 
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_shelly_2108/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_shelly_2208/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
@@ -226,10 +223,47 @@ def process_line(line, genome_path):
         print(f"end - start in process line {end - start}")
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
         # Perform the main analysis using the obtained parameters
-        post_fold.extract_segment(start, end, st_path, location_of_site)
+        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
+        final_df = add_line_to_final_df(final_df, "chr", converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand, "strand", location_of_site, "exp", tool)
     print("done - after extract segment")
 
+
+def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
+    # Create a dictionary representing the new row
+    new_row = {
+        'chr': chr,
+        'start_first_strand': start_first_strand,
+        'end_first_strand': end_first_strand,
+        'start_second_strand': start_second_strand,
+        'end_second_strand': end_second_strand,
+        'strand': strand,
+        'editing_site_location': editing_site_location,
+        'exp_level': exp_level,
+        'method': method
+    }
+    
+    # Append the new row to the DataFrame
+    return final_df.append(new_row, ignore_index=True)
+
+
+def create_final_table_structure():
+    data = {
+        'chr': [],
+        'start_first_strand': [],
+        'end_first_strand': [],
+        'start_second_strand': [],
+        'end_second_strand': [],
+        'strand': [],
+        'editing_site_location': [],
+        'exp_level': [],
+        'method': []
+    }
+    return pd.DataFrame(data)
+
+
 def united_main():
+    # Create the DataFrame
+    final_df = create_final_table_structure()
     bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site.bed"
     # "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/10_sites_check.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
