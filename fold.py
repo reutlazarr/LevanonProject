@@ -11,6 +11,7 @@ import max_distance_method as max_distance_tool
 import json
 import os
 import multiprocessing
+import pandas as pd
 
 
 def is_file_empty(file_path):
@@ -28,9 +29,6 @@ def run_drawRNAstructure(path_ct_file, path_shape_file, path_svg_file):
 
 def run_bpRNA(path_to_dbn_file, site_dir, st_path):
     bpRNA_path = "/home/alu/aluguest/Reut_Shelly/vscode/code_reut/LevanonProject/LevanonProject/run_bpRNA.sh"
-    print("link to dbn: " + path_to_dbn_file)
-    print("link to site dir: " + site_dir)
-    print("link to st path: " + st_path)
     os.chdir(site_dir)
     p = subprocess.run([bpRNA_path, path_to_dbn_file], capture_output=True, text=True)
     with open('bpRNA_output.log', 'w') as log_file:
@@ -125,7 +123,6 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
     distance = end - start
-    print(f"start - end in common_part_of_tool {distance}")
     fasta_seq_to_fold= write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
     # send it to the folding program:
@@ -144,7 +141,6 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     # copy everything that's inside the mxfolded file 
     # shutil.copyfile(path_to_mxfold2_result, path_to_bpRNA_result)
     st_path = create_bpRNA_path(path_to_mxfold2_result, tool_dir)
-
     run_bpRNA(path_to_mxfold2_result, tool_dir, st_path)
 
     print(f"after bpRNA by {tool}")
@@ -211,26 +207,62 @@ def open_json_file_for_reading(file):
         sites_from_genome = json.load(sites_from_genome_dict)
         return sites_from_genome
  
-def process_line(line, genome_path):
+def process_line(line, genome_path, final_df):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr = l_dis.pipline(fields)
 
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_shelly_2108/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_shelly_2208/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
     tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
     for tool in tools_list:
         start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir)
-        print(f"end - start in process line {end - start}")
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
         # Perform the main analysis using the obtained parameters
-        post_fold.extract_segment(start, end, st_path, location_of_site)
-    print("done - after extract segment")
+        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
+        add_line_to_final_df(final_df, chr, converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand, "strand", location_of_site, "exp", tool)
+        print(final_df)
+        print(f"done - after extract segment in {tool} method")
+
+
+def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
+    # Get the next index for the new row
+    next_index = len(final_df)
+    
+    # Assign the new row to the next index using loc
+    final_df.loc[next_index] = [
+        chr,
+        start_first_strand,
+        end_first_strand,
+        start_second_strand,
+        end_second_strand,
+        strand,
+        editing_site_location,
+        exp_level,
+        method
+    ]
+
+def create_final_table_structure():
+    data = {
+        'chr': [],
+        'start_first_strand': [],
+        'end_first_strand': [],
+        'start_second_strand': [],
+        'end_second_strand': [],
+        'strand': [],
+        'editing_site_location': [],
+        'exp_level': [],
+        'method': []
+    }
+    return pd.DataFrame(data)
+
 
 def united_main():
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site.bed"
+    # Create the DataFrame
+    final_df = create_final_table_structure()
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/10_sites_check.bed"
     # "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/10_sites_check.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
@@ -239,7 +271,10 @@ def united_main():
 
     # Use multiprocessing Pool
     with multiprocessing.Pool(processes=35) as pool:  # Adjust the number of processes as needed
-        pool.starmap(process_line, [(line, genome_path) for line in lines])
+        pool.starmap(process_line, [(line, genome_path, final_df) for line in lines])
+    # export the final df to a csv file
+    final_df.to_csv('/home/alu/aluguest/Reut_Shelly/vscode/code_shelly/LevanonProject/final_table.csv', index=False)
+
 
 if __name__ == "__main__":
     united_main()

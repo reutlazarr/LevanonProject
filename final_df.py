@@ -2,10 +2,9 @@ import pandas as pd
 
 def create_final_table_structure():
     data = {
-        'chr_first': [],
+        'chr': [],
         'start_first_strand': [],
         'end_first_strand': [],
-        'chr_second': [],
         'start_second_strand': [],
         'end_second_strand': [],
         'strand': [],
