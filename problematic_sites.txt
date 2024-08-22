@@ -1,0 +1,11 @@
+dbn size is 0:
+default_tool: > seq to fold of 6550bp in chr1 in location 24895 by default_tool
+max_distance_tool: > seq to fold of 7656bp in chr1 in location 21051 by max_distance_tool
+default_tool: > seq to fold of 5750bp in chr1 in location 23262 by default_tool
+ratio_based_tool: > seq to fold of 7800bp in chr1 in location 28707 by ratio_based_tool
+
+st is not created:
+default_tool: > seq to fold of 6550bp in chr1 in location 24895 by default_tool
+max_distance_tool: > seq to fold of 7656bp in chr1 in location 21051 by max_distance_tool
+default_tool: > seq to fold of 5750bp in chr1 in location 23262 by default_tool
+ratio_based_tool: > seq to fold of 7800bp in chr1 in location 28707 by ratio_based_tool
