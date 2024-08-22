@@ -37,12 +37,15 @@ def default_distance(dis_list, location_of_site):
 
     # there are no editing sites in the positive side
     if pos_dis_sum == 0:
+        print("in pos_dis_num == 0")
         neg_dis_avg = neg_dis_sum / num_of_close_neg_sites
         start = location_of_site + math.floor(neg_dis_avg)
-        end = location_of_site
+        end = location_of_site + 20
      # there are no editing sites in the negative side
     if neg_dis_sum == 0:
+        print ("in neg_dis_sum == 0")
         pos_dis_avg = pos_dis_sum / num_of_close_pos_sites
-        start = location_of_site
+        start = location_of_site - 20
         end = location_of_site + math.ceil(pos_dis_avg)
+    print(f"end - start after default_method {end - start}")
     return start, end

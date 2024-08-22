@@ -125,6 +125,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
     distance = end - start
+    print(f"start - end in common_part_of_tool {distance}")
     fasta_seq_to_fold= write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
     # send it to the folding program:
@@ -192,7 +193,7 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
     relevant_function = eval(f"{tool}.get_output_{tool}")
     print(relevant_function)
     start_point, end_point = relevant_function(dis_list, location_of_site)
-
+    print(f"end - start in run_by_tool_type {end_point - start_point}")
     # Initialize st_path to None or some default value
     st_path = ""
 
@@ -200,6 +201,7 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
         st_path = ""
     else:
         dir = create_directory_by_tool_type(site_dir, tool)
+        print(f"start - end in run by tool type after relevant function {end_point - start_point}")
         st_path= common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir)
         print("tool " + tool)
     return start_point, end_point, st_path
@@ -214,17 +216,18 @@ def process_line(line, genome_path):
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr = l_dis.pipline(fields)
 
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_update/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_shelly_2108/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
     tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
     for tool in tools_list:
         start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir)
+        print(f"end - start in process line {end - start}")
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
         # Perform the main analysis using the obtained parameters
         post_fold.extract_segment(start, end, st_path, location_of_site)
-    print("done")
+    print("done - after extract segment")
 
 def united_main():
     bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site.bed"
