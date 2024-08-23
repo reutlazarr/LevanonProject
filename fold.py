@@ -153,9 +153,11 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     gr = genome_reader(genome_path)
     
     unconverted_seq = gr.get_fasta(chr, int(start-1), int(end-1))
+    print(unconverted_seq)
     #we should check this part! with it and without it:
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
+    print(seq_converted)
     distance = end - start
     fasta_seq_to_fold = write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
@@ -263,10 +265,10 @@ def process_line(line, genome_path, final_df):
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
 
         # If st_path is None, skip further processing for this tool
-        if st_path is None:
+        if start is None or end is None or st_path is None:
             print(f"Skipping post-fold analysis for tool {tool} as st_path is None.")
             continue
-        
+       
         # Perform the main analysis using the obtained parameters
         converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
         # create_shape_file_after_fold(location_of_site, tool, site_dir, new_location_of_site, score=0.5)

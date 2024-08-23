@@ -83,6 +83,9 @@ def convert_to_genomic_coords(start_first_strand, end_first_strand, start_second
 
 
 def extract_segment(start, end, st_path, location_of_site):
+    if start is None or end is None:
+        print("Error: Start or end is None, skipping segment extraction.")
+        return None, None, None, None
     new_start, new_end, new_location_of_site, delta = ReNumber_the_sequence(start, end, location_of_site)
     print(f"new_location_of_site {new_location_of_site}")
     print(f"the new start is : {new_start} ,the new end is: {new_end} ,the new location of site is: {new_location_of_site}")
