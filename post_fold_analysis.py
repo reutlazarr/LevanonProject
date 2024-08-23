@@ -15,7 +15,6 @@ def ReNumber_the_sequence(start, end, location_of_site):
 
 def parse_st_file(st_file, location_of_site):
     # Initialize default values
-    # coords_of_segment = pd.DataFrame(columns=["start1", "end1", "start2", "end2"])
     seqs_of_segment = "default_seqs"
     segment = "default_segment"
     length = "default_length"
