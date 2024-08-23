@@ -13,7 +13,6 @@ import os
 import multiprocessing
 import pandas as pd
 
-
 def is_file_empty(file_path):
     return os.path.isfile(file_path) and os.path.getsize(file_path) == 0
 
@@ -34,7 +33,7 @@ def run_bpRNA(path_to_dbn_file, site_dir, st_path):
     with open('bpRNA_output.log', 'w') as log_file:
         log_file.write(f"STDOUT:\n{p.stdout}\nSTDERR:\n{p.stderr}\n")
     if os.path.getsize(st_path) == 0:
-        raise RuntimeError(f"Output .st file is empty. Something went wrong with bpRNA for file: {path_to_dbn_file}")
+        print(f"Output .st file is empty. Something went wrong with bpRNA for file: {path_to_dbn_file}")
     return st_path
 
 def create_bpRNA_path(path_to_dbn_file, site_dir):
@@ -85,14 +84,23 @@ def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
 # create different kind of files
 # the shape file is now a default one 
 
-def create_files(location_of_site, tool_type, tool_dir):
+def create_files(location_of_site, tool_type, tool_dir, new_location_of_site):
     try:
         # Create path to ct file inside the relevant directory
         ct_file_name = f'{location_of_site}_{tool_type}_ct_file.ct'
         ct_file_path = os.path.join(tool_dir, ct_file_name)
 
         # Create path to shape file
-        shape_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/draw_RNA_structures/my_shape.shape"
+        shape_file_name = f'{location_of_site}_{tool_type}.shape'
+        shape_file_path = os.path.join(tool_dir, shape_file_name)
+
+        try:
+            with open(shape_file_path, 'w') as shape_file:
+                # Write only the editing site position with the score
+                shape_file.write(f"{new_location_of_site} 0.5\n")
+            print(f"Shape file created for editing site: {shape_file_path}")
+        except Exception as e:
+            print(f"Error in create_shape_file_for_editing_site: {e}")
 
         # Create path to svg file
         svg_file_name = f'{location_of_site}_{tool_type}_svg_file.svg'
@@ -112,18 +120,46 @@ def create_files(location_of_site, tool_type, tool_dir):
         print(f"Error in create_files: {e}")
         return None, None, None, None
 
+
+def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_site_position, score):
+    shape_file_name = f'{location_of_site}_{tool_type}.shape'
+    shape_file_path = os.path.join(tool_dir, shape_file_name)
+
+    try:
+        with open(shape_file_path, 'w') as shape_file:
+            # Write only the editing site position with the score
+            shape_file.write(f"{editing_site_position} {score}\n")
+        print(f"Shape file created for editing site: {shape_file_path}")
+    except Exception as e:
+        print(f"Error in create_shape_file_for_editing_site: {e}")
+
+    return shape_file_path
+
+
 # this part is shared by the four different tools
 def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, tool_dir):
-    # create empty files
-    ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool, tool_dir)
+    # Calculate the sequence length
+    sequence_length = end - start
+
+    # Skip folding if the sequence is longer than 5500 bp
+    if sequence_length > 5600:
+        print(f"Skipping folding for {location_of_site} as sequence length {sequence_length} exceeds 5500 bp.")
+        return None
+
+    new_start, new_end, new_location_of_site, delta = post_fold.ReNumber_the_sequence(start, end, location_of_site)
+
+    # Create empty files
+    ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool, tool_dir, new_location_of_site)
     gr = genome_reader(genome_path)
     
     unconverted_seq = gr.get_fasta(chr, int(start-1), int(end-1))
+    print(unconverted_seq)
     #we should check this part! with it and without it:
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
+    print(seq_converted)
     distance = end - start
-    fasta_seq_to_fold= write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
+    fasta_seq_to_fold = write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
     # send it to the folding program:
     if is_file_empty(path_to_mxfold2_result):
@@ -148,7 +184,6 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
        print(f"Failed to get st_path for tool {tool}")
 
     return st_path
-
 
 def write_to_fasta_file(location_of_site, sequence, chr, tool_type, site_dir, distance):
     sequence_path_name = f"{location_of_site}_{tool_type}.fa"
@@ -179,8 +214,10 @@ def convert_dna_to_formal_format(dna):
 def create_directory_by_tool_type(site_dir_path, tool_type):
     # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/site_of_interest_analysis/{chr}_{location_of_site}/"
     tool_type_dir = f"{site_dir_path}{tool_type}/"
-    print(tool_type_dir)
+    print(f"the tool type is in : {tool_type_dir}")
+    print("hello from")
     if not os.path.exists(tool_type_dir):
+        print("there")
         os.mkdir(tool_type_dir)
         return tool_type_dir
     else : return tool_type_dir
@@ -194,11 +231,17 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
     st_path = ""
 
     if (start_point == 0 and end_point == 0):
-        st_path = ""
+        # st_path = ""
+        return None, None, None
+    
     else:
         dir = create_directory_by_tool_type(site_dir, tool)
         print(f"start - end in run by tool type after relevant function {end_point - start_point}")
         st_path= common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir)
+
+        if st_path is None:
+            return None, None, None
+        
         print("tool " + tool)
     return start_point, end_point, st_path
 
@@ -212,7 +255,7 @@ def process_line(line, genome_path, final_df):
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr = l_dis.pipline(fields)
 
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_shelly_2208/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_Reut_2308_3/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
@@ -220,12 +263,18 @@ def process_line(line, genome_path, final_df):
     for tool in tools_list:
         start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir)
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
+
+        # If st_path is None, skip further processing for this tool
+        if start is None or end is None or st_path is None:
+            print(f"Skipping post-fold analysis for tool {tool} as st_path is None.")
+            continue
+       
         # Perform the main analysis using the obtained parameters
         converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
+        # create_shape_file_after_fold(location_of_site, tool, site_dir, new_location_of_site, score=0.5)
         add_line_to_final_df(final_df, chr, converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand, "strand", location_of_site, "exp", tool)
         print(final_df)
         print(f"done - after extract segment in {tool} method")
-
 
 def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
     # Get the next index for the new row
@@ -258,11 +307,10 @@ def create_final_table_structure():
     }
     return pd.DataFrame(data)
 
-
 def united_main():
     # Create the DataFrame
     final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/10_sites_check.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site_reut.bed"
     # "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/10_sites_check.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
@@ -274,7 +322,6 @@ def united_main():
         pool.starmap(process_line, [(line, genome_path, final_df) for line in lines])
     # export the final df to a csv file
     final_df.to_csv('/home/alu/aluguest/Reut_Shelly/vscode/code_shelly/LevanonProject/final_table.csv', index=False)
-
 
 if __name__ == "__main__":
     united_main()
