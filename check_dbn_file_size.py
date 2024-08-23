@@ -46,6 +46,6 @@ def process_directories(root_dir, output_file_path):
                 output_file.write(f'{os.path.basename(root)}: {first_line}\n')
 
 # Example usage:
-root_directory = "/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_shelly_2108/"
-output_file = "/home/alu/aluguest/Reut_Shelly/vscode/code_shelly/LevanonProject/problematic_sites.txt"
+root_directory = "/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_shelly_2308/"
+output_file = "/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_shelly_2308/problematic_sites.txt"
 process_directories(root_directory, output_file)

@@ -34,7 +34,7 @@ def run_bpRNA(path_to_dbn_file, site_dir, st_path):
     with open('bpRNA_output.log', 'w') as log_file:
         log_file.write(f"STDOUT:\n{p.stdout}\nSTDERR:\n{p.stderr}\n")
     if os.path.getsize(st_path) == 0:
-        raise RuntimeError(f"Output .st file is empty. Something went wrong with bpRNA for file: {path_to_dbn_file}")
+        print(f"Output .st file is empty. Something went wrong with bpRNA for file: {path_to_dbn_file}")
     return st_path
 
 def create_bpRNA_path(path_to_dbn_file, site_dir):
@@ -212,7 +212,7 @@ def process_line(line, genome_path, final_df):
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr = l_dis.pipline(fields)
 
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_shelly_2208/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_1104633/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
@@ -222,7 +222,7 @@ def process_line(line, genome_path, final_df):
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
         # Perform the main analysis using the obtained parameters
         converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
-        add_line_to_final_df(final_df, chr, converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand, "strand", location_of_site, "exp", tool)
+        add_line_to_final_df(final_df, chr, int(converted_start_first_strand), int(converted_end_first_strand), int(converted_start_second_strand), int(converted_end_second_strand), "strand", int(location_of_site), "exp", tool)
         print(final_df)
         print(f"done - after extract segment in {tool} method")
 
@@ -262,7 +262,7 @@ def create_final_table_structure():
 def united_main():
     # Create the DataFrame
     final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/10_sites_check.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/1104633.bed"
     # "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/10_sites_check.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
