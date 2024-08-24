@@ -137,7 +137,7 @@ def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_
 
 
 # this part is shared by the four different tools
-def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, tool_dir):
+def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, tool_dir, strand):
     # Calculate the sequence length
     sequence_length = end - start
 
@@ -157,7 +157,12 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     #we should check this part! with it and without it:
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
-    print(seq_converted)
+    print("first", seq_converted)
+    # add reverse complement  (-)
+    if strand == "-":
+        seq_converted= blast.reverse_complement_rna(seq_converted)
+    
+    print("second", seq_converted)
     distance = end - start
     fasta_seq_to_fold = write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
@@ -222,7 +227,7 @@ def create_directory_by_tool_type(site_dir_path, tool_type):
         return tool_type_dir
     else : return tool_type_dir
 
-def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir):
+def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand):
     relevant_function = eval(f"{tool}.get_output_{tool}")
     start_point, end_point = relevant_function(dis_list, location_of_site)
     print(f"end - start in run_by_tool_type {end_point - start_point}")
@@ -236,7 +241,7 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
     else:
         dir = create_directory_by_tool_type(site_dir, tool)
         print(f"start - end in run by tool type after relevant function {end_point - start_point}")
-        st_path= common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir)
+        st_path= common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir, strand)
 
         if st_path is None:
             return None, None, None
@@ -254,12 +259,15 @@ def process_line(line, genome_path, final_df):
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr = l_dis.pipline(fields)
     site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_65-157/{chr}_{location_of_site}/"
+    dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
+
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_Reut_2308_4/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
     tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
     for tool in tools_list:
-        start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir)
+        start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
 
         # If st_path is None, skip further processing for this tool
