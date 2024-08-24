@@ -170,7 +170,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
         print(f"after mx by {tool}")
     if is_file_empty(ct_file_path):
         convert_dbn_to_ct(path_to_mxfold2_result, ct_file_path)
-        print("ct_file wasn't empty")
+        print("ct_file was empty")
     print(f"after convertion to ct by {tool}")
 
     if not (is_file_empty(ct_file_path)) and not (is_file_empty(shape_file_path)) and is_file_empty(svg_file_path):
@@ -251,12 +251,12 @@ def process_line(line, genome_path, final_df):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/1243427_only_ratio/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/1243427_all_three/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
-    # tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
-    tools_list = ["ratio_based_tool"]
+    tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
+    # tools_list = ["ratio_based_tool"]
     for tool in tools_list:
         start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
@@ -268,10 +268,12 @@ def process_line(line, genome_path, final_df):
        
         # Perform the main analysis using the obtained parameters
         converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
-        final_df = add_line_to_final_df(final_df, chr, int(converted_start_first_strand), int(converted_end_first_strand), int(converted_start_second_strand), int(converted_end_second_strand), "strand", int(location_of_site), "exp", tool)
-        print("final df\n")
-        print(final_df)
-        print(f"done - after extract segment in {tool} method")
+        if converted_start_first_strand is None or converted_end_first_strand is None or converted_start_second_strand is None or converted_end_second_strand is None:
+            print("Error - one of the converted parts is None")
+        else:
+            final_df = add_line_to_final_df(final_df, chr, int(converted_start_first_strand), int(converted_end_first_strand), int(converted_start_second_strand), int(converted_end_second_strand), "strand", int(location_of_site), "exp", tool)
+            print("final df\n")
+            print(final_df)
 
 def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
     # Create a new row as a DataFrame
@@ -330,7 +332,8 @@ def united_main():
     with multiprocessing.Pool(processes=35) as pool:  # Adjust the number of processes as needed
         pool.starmap(process_line, [(line, genome_path, final_df) for line in lines])
     # export the final df to a csv file
-    final_df.to_csv("/private10/Projects/Reut_Shelly/our_tool/data/1243427_only_ratio/final_df.csv", index=False)
+    final_df.to_csv("/private10/Projects/Reut_Shelly/our_tool/data/1243427_all_three/1243427_final_df.csv", index=False)
 
 if __name__ == "__main__":
     united_main()
+
