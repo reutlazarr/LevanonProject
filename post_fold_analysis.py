@@ -72,7 +72,7 @@ def convert_to_genomic_coords(start_first_strand, end_first_strand, start_second
     if start_first_strand == "default" or end_first_strand == "default" or start_second_strand == "default" or end_second_strand == "default":
         print("Error: start/end of the segments are empty.")
         return None, None, None, None  # Return four None values to avoid unpacking errors
-    
+    print("start first strand and the rest are not default")
     # Add delta to the DataFrame coordinates
     converted_start_first_strand = start_first_strand + delta
     converted_end_first_strand = end_first_strand + delta
@@ -90,11 +90,14 @@ def extract_segment(start, end, st_path, location_of_site):
     print(f"the new start is : {new_start} ,the new end is: {new_end} ,the new location of site is: {new_location_of_site}")
     # coords of the location of site's segment
     start_first_strand, end_first_strand, start_second_strand, end_second_strand = parse_st_file(st_path, new_location_of_site)
-    # Send the segment coords into the convert_to_genomic_coords function
+    if start_first_strand is None or end_first_strand is None or start_second_strand is None or end_second_strand is None:
+        print("Error: parse_st_file fails since the editing site is not in a segment")
+        return None, None, None, None
     converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = convert_to_genomic_coords(start_first_strand, end_first_strand, start_second_strand, end_second_strand, delta)
     # Handle the case where segments were not found
-    if converted_start_first_strand is None:
-        print("Error: Could not convert to genomic coordinates. Returning None values.")
+    if converted_start_first_strand is None or converted_end_first_strand is None or converted_start_second_strand is None or converted_end_second_strand is None:
+        print("Error: conversion to genomic coords failed")
         return None, None, None, None
     
+    print("coordinates are converted to genomics successfully")
     return converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand
