@@ -90,6 +90,7 @@ def extract_segment(start, end, st_path, location_of_site):
     print(f"the new start is : {new_start} ,the new end is: {new_end} ,the new location of site is: {new_location_of_site}")
     # coords of the location of site's segment
     start_first_strand, end_first_strand, start_second_strand, end_second_strand = parse_st_file(st_path, new_location_of_site)
+    # Send the segment coords into the convert_to_genomic_coords function
     converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = convert_to_genomic_coords(start_first_strand, end_first_strand, start_second_strand, end_second_strand, delta)
     # Handle the case where segments were not found
     if converted_start_first_strand is None:

@@ -123,19 +123,19 @@ def get_best_ratio(n_p_sorted_best_10, combi_scopes_ratios_sites, location_of_si
     chr_best_from_best_10 = best_from_best_10[3].split(": ")[1]
     # if best scope > 0 
     if scope_best_from_best_10 > 0:
-        start_best_from_best_10 = location_of_site
+        start_best_from_best_10 = location_of_site - 30
         end_best_from_best_10 = location_of_site + scope_best_from_best_10
     # if best scope < 0 
     if scope_best_from_best_10 < 0:
         start_best_from_best_10 = location_of_site + scope_best_from_best_10
-        end_best_from_best_10 = location_of_site
+        end_best_from_best_10 = location_of_site + 30
     # compare ratio from the best combi and ratio from the best 10
     if float(best_from_combi[3].split(": ")[1]) >= float(best_from_best_10[1].split(": ")[1]):
         print("return best combi")
         return best_from_combi
     # if the ratio of best from best 10 is bigger
     else:
-        print("return something else")
+        print("the ratio of best from best 10 is bigger")
         ratio = float(best_from_best_10[1].split(": ")[1])
         return ["start: " + str(start_best_from_best_10), "end: " + str(end_best_from_best_10), "scope: " + str(scope_best_from_best_10), "ratio: " + str(ratio), "site: " + str(site_best_from_best_10), "chr: " + str(chr_best_from_best_10)]
     # zohar's get_sequence
