@@ -262,6 +262,7 @@ def process_line(line, genome_path, final_df):
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
 
         # If st_path is None, skip further processing for this tool
+        # Means there is no editing site in the distance list or that the sequence was too big and there is problem to fold it
         if start is None or end is None or st_path is None:
             print(f"Skipping post-fold analysis for tool {tool} as st_path is None.")
             continue
