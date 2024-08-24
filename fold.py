@@ -275,26 +275,11 @@ def process_line(line, genome_path, final_df):
             print(f"Skipping post-fold analysis for tool {tool} as st_path is None.")
             continue
        
-        # # Perform the main analysis using the obtained parameters
-        # converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
-        # add_line_to_final_df(final_df, chr, converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand, "strand", location_of_site, "exp", tool)
-        # print(final_df)
-        # print(f"done - after extract segment in {tool} method")
-
-        if start is not None and end is not None and st_path is not None:
-            converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
-
-        if (converted_start_first_strand is not None and
-            converted_end_first_strand is not None and
-            converted_start_second_strand is not None and
-            converted_end_second_strand is not None):
-        
-            add_line_to_final_df(final_df, chr, converted_start_first_strand, converted_end_first_strand,
-                                converted_start_second_strand, converted_end_second_strand,
-                                "strand", location_of_site, "exp", tool)
-        else:
-            print(f"Skipping DataFrame update for tool {tool} due to None values in extracted segments.")
-
+        # Perform the main analysis using the obtained parameters
+        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
+        add_line_to_final_df(final_df, chr, int(converted_start_first_strand), int(converted_end_first_strand), int(converted_start_second_strand), int(converted_end_second_strand), "strand", int(location_of_site), "exp", tool)
+        print(final_df)
+        print(f"done - after extract segment in {tool} method")
 
 def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
     # Get the next index for the new row
@@ -330,7 +315,7 @@ def create_final_table_structure():
 def united_main():
     # Create the DataFrame
     final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site_reut.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/1104633.bed"
     # "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/10_sites_check.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
