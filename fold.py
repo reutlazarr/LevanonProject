@@ -120,7 +120,6 @@ def create_files(location_of_site, tool_type, tool_dir, new_location_of_site):
         print(f"Error in create_files: {e}")
         return None, None, None, None
 
-
 def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_site_position, score):
     shape_file_name = f'{location_of_site}_{tool_type}.shape'
     shape_file_path = os.path.join(tool_dir, shape_file_name)
@@ -134,7 +133,6 @@ def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_
         print(f"Error in create_shape_file_for_editing_site: {e}")
 
     return shape_file_path
-
 
 # this part is shared by the four different tools
 def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, tool_dir, strand):
@@ -153,16 +151,16 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     gr = genome_reader(genome_path)
     
     unconverted_seq = gr.get_fasta(chr, int(start-1), int(end-1))
-    print(unconverted_seq)
+    # print(unconverted_seq)
     #we should check this part! with it and without it:
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
-    print("first", seq_converted)
+    # print("first", seq_converted)
     # add reverse complement  (-)
     if strand == "-":
         seq_converted= blast.reverse_complement_rna(seq_converted)
     
-    print("second", seq_converted)
+    # print("second", seq_converted)
     distance = end - start
     fasta_seq_to_fold = write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
@@ -183,11 +181,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     # shutil.copyfile(path_to_mxfold2_result, path_to_bpRNA_result)
     st_path = create_bpRNA_path(path_to_mxfold2_result, tool_dir)
     run_bpRNA(path_to_mxfold2_result, tool_dir, st_path)
-
     print(f"after bpRNA by {tool}")
-    if not st_path:
-       print(f"Failed to get st_path for tool {tool}")
-
     return st_path
 
 def write_to_fasta_file(location_of_site, sequence, chr, tool_type, site_dir, distance):
@@ -236,6 +230,7 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
 
     if (start_point == 0 and end_point == 0):
         # st_path = ""
+        print("st_path is none since start point and end point == 0")
         return None, None, None
     
     else:
@@ -245,8 +240,6 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
 
         if st_path is None:
             return None, None, None
-        
-        print("tool " + tool)
     return start_point, end_point, st_path
 
 def open_json_file_for_reading(file):
@@ -257,15 +250,13 @@ def open_json_file_for_reading(file):
 def process_line(line, genome_path, final_df):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
-    dis_list, location_of_site, chr = l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_65-157/{chr}_{location_of_site}/"
     dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
-
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_Reut_2308_4/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/1243427_only_ratio/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
-    tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
+    # tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
+    tools_list = ["ratio_based_tool"]
     for tool in tools_list:
         start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
@@ -277,26 +268,29 @@ def process_line(line, genome_path, final_df):
        
         # Perform the main analysis using the obtained parameters
         converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
-        add_line_to_final_df(final_df, chr, int(converted_start_first_strand), int(converted_end_first_strand), int(converted_start_second_strand), int(converted_end_second_strand), "strand", int(location_of_site), "exp", tool)
+        final_df = add_line_to_final_df(final_df, chr, int(converted_start_first_strand), int(converted_end_first_strand), int(converted_start_second_strand), int(converted_end_second_strand), "strand", int(location_of_site), "exp", tool)
+        print("final df\n")
         print(final_df)
         print(f"done - after extract segment in {tool} method")
 
 def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
-    # Get the next index for the new row
-    next_index = len(final_df)
+    # Create a new row as a DataFrame
+    new_row = pd.DataFrame({
+        'chr': [chr],
+        'start_first_strand': [start_first_strand],
+        'end_first_strand': [end_first_strand],
+        'start_second_strand': [start_second_strand],
+        'end_second_strand': [end_second_strand],
+        'strand': [strand],
+        'editing_site_location': [editing_site_location],
+        'exp_level': [exp_level],
+        'method': [method]
+    })
     
-    # Assign the new row to the next index using loc
-    final_df.loc[next_index] = [
-        chr,
-        start_first_strand,
-        end_first_strand,
-        start_second_strand,
-        end_second_strand,
-        strand,
-        editing_site_location,
-        exp_level,
-        method
-    ]
+    # Append the new row to the existing DataFrame
+    final_df = pd.concat([final_df, new_row], ignore_index=True)
+    
+    return final_df
 
 def create_final_table_structure():
     data = {
@@ -310,13 +304,23 @@ def create_final_table_structure():
         'exp_level': [],
         'method': []
     }
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    
+    # Ensure specific columns are treated as integers
+    df = df.astype({
+        'start_first_strand': 'int',
+        'end_first_strand': 'int',
+        'start_second_strand': 'int',
+        'end_second_strand': 'int',
+        'editing_site_location': 'int'
+    })
+    
+    return df
 
 def united_main():
     # Create the DataFrame
     final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/65-158_sites.bed"
-    # "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/10_sites_check.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
     with open(bed_file_path, 'r') as bed_file:
@@ -326,7 +330,7 @@ def united_main():
     with multiprocessing.Pool(processes=35) as pool:  # Adjust the number of processes as needed
         pool.starmap(process_line, [(line, genome_path, final_df) for line in lines])
     # export the final df to a csv file
-    final_df.to_csv('/home/alu/aluguest/Reut_Shelly/vscode/code_shelly/LevanonProject/final_table.csv', index=False)
+    final_df.to_csv("/private10/Projects/Reut_Shelly/our_tool/data/1243427_only_ratio/final_df.csv", index=False)
 
 if __name__ == "__main__":
     united_main()
