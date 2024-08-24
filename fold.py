@@ -276,8 +276,7 @@ def process_line(line, genome_path, final_df):
        
         # Perform the main analysis using the obtained parameters
         converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
-        # create_shape_file_after_fold(location_of_site, tool, site_dir, new_location_of_site, score=0.5)
-        add_line_to_final_df(final_df, chr, converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand, "strand", location_of_site, "exp", tool)
+        add_line_to_final_df(final_df, chr, int(converted_start_first_strand), int(converted_end_first_strand), int(converted_start_second_strand), int(converted_end_second_strand), "strand", int(location_of_site), "exp", tool)
         print(final_df)
         print(f"done - after extract segment in {tool} method")
 
@@ -315,7 +314,7 @@ def create_final_table_structure():
 def united_main():
     # Create the DataFrame
     final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site_reut.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/1104633.bed"
     # "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/10_sites_check.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
