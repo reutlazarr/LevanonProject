@@ -270,16 +270,31 @@ def process_line(line, genome_path, final_df):
         print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
 
         # If st_path is None, skip further processing for this tool
+        # Means there is no editing site in the distance list or that the sequence was too big and there is problem to fold it
         if start is None or end is None or st_path is None:
             print(f"Skipping post-fold analysis for tool {tool} as st_path is None.")
             continue
        
-        # Perform the main analysis using the obtained parameters
-        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
-        # create_shape_file_after_fold(location_of_site, tool, site_dir, new_location_of_site, score=0.5)
-        add_line_to_final_df(final_df, chr, converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand, "strand", location_of_site, "exp", tool)
-        print(final_df)
-        print(f"done - after extract segment in {tool} method")
+        # # Perform the main analysis using the obtained parameters
+        # converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
+        # add_line_to_final_df(final_df, chr, converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand, "strand", location_of_site, "exp", tool)
+        # print(final_df)
+        # print(f"done - after extract segment in {tool} method")
+
+        if start is not None and end is not None and st_path is not None:
+            converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
+
+        if (converted_start_first_strand is not None and
+            converted_end_first_strand is not None and
+            converted_start_second_strand is not None and
+            converted_end_second_strand is not None):
+        
+            add_line_to_final_df(final_df, chr, converted_start_first_strand, converted_end_first_strand,
+                                converted_start_second_strand, converted_end_second_strand,
+                                "strand", location_of_site, "exp", tool)
+        else:
+            print(f"Skipping DataFrame update for tool {tool} due to None values in extracted segments.")
+
 
 def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
     # Get the next index for the new row
