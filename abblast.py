@@ -29,6 +29,26 @@ def transcribe_dna_to_rna(dna_sequence):
 
     return str(rna_sequence)
 
+
+def reverse_complement_rna(rna_sequence):
+    """
+    Computes the reverse complement of an RNA sequence.
+
+    Parameters:
+    - rna_sequence (str): The input RNA sequence.
+
+    Returns:
+    - str: The reverse complement of the RNA sequence.
+    """
+    # Create a Seq object from the RNA sequence
+    rna_seq = Seq(rna_sequence)
+    
+    # Get the reverse complement
+    reverse_complement_seq = rna_seq.reverse_complement_rna()
+    
+    return str(reverse_complement_seq)
+
+
 #Extract the entire sequence of a chromosome from a FASTA file.
 #input : fasta_file: Path to the FASTA file, chromosome_id: Identifier of the chromosome to extract
 #output: The entire sequence of the chromosome as a string or None if the chromosome ID is not found

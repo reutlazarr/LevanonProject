@@ -25,10 +25,10 @@ def get_gene_length(gene_name):
     else:
         return None
 
-# Example usage
-gene_name = "BRCA1"  # Replace with your gene name
-gene_length = get_gene_length(gene_name)
-if gene_length:
-    print(f"The length of the gene {gene_name} is {gene_length} bases.")
-else:
-    print(f"Gene {gene_name} not found.")
+# # Example usage
+# gene_name = "BRCA1"  # Replace with your gene name
+# gene_length = get_gene_length(gene_name)
+# if gene_length:
+#     print(f"The length of the gene {gene_name} is {gene_length} bases.")
+# else:
+#     print(f"Gene {gene_name} not found.")
