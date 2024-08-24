@@ -224,7 +224,6 @@ def create_directory_by_tool_type(site_dir_path, tool_type):
 
 def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir):
     relevant_function = eval(f"{tool}.get_output_{tool}")
-    print(relevant_function)
     start_point, end_point = relevant_function(dis_list, location_of_site)
     print(f"end - start in run_by_tool_type {end_point - start_point}")
     # Initialize st_path to None or some default value
@@ -254,7 +253,7 @@ def process_line(line, genome_path, final_df):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr = l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_1104633/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_analysis_65-157/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
@@ -308,7 +307,7 @@ def create_final_table_structure():
 def united_main():
     # Create the DataFrame
     final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/1104633.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/65-158_sites.bed"
     # "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites for analysis/10_sites_check.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
