@@ -145,7 +145,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
         print(f"Skipping folding for {location_of_site} as sequence length {sequence_length} exceeds 5500 bp.")
         return None
 
-    new_start, new_end, new_location_of_site, delta = post_fold.ReNumber_the_sequence(start, end, location_of_site)
+    new_start, new_end, new_location_of_site, delta = post_fold.ReNumber_the_sequence(start, end, location_of_site, strand)
 
     # Create empty files
     ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool, tool_dir, new_location_of_site)
@@ -156,10 +156,15 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     #we should check this part! with it and without it:
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
+    print("strand is", strand)
+    print("sequence: " , seq_converted)
+
     # print("first", seq_converted)
     # add reverse complement  (-)
     if strand == "-":
+        print("strand is minus!!")
         seq_converted= blast.reverse_complement_rna(seq_converted)
+        print("seq converted is:", seq_converted)
     
     # print("second", seq_converted)
     distance = end - start
@@ -251,9 +256,8 @@ def open_json_file_for_reading(file):
 def process_line(line, genome_path, final_df_path):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
-    dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_10_sites_2/{chr}_{location_of_site}/"
-    
+    dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/1243427_all_three/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
 
@@ -327,7 +331,9 @@ def create_final_table_structure():
     
     return df
 def united_main():
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/10_sites_check.bed"
+    # Create the DataFrame
+    final_df = create_final_table_structure()
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
     site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_10_sites_2/"

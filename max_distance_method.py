@@ -7,14 +7,30 @@ def get_output_max_distance_tool(dis_list, location_of_site):
         return 0, 0
     # call the func based on max distance
     best_by_max_dis = max_distance(dis_list, location_of_site)
-    # chr = best_by_max_dis[4].split(": ")[1]
-    start = int(best_by_max_dis[0].split(": ")[1])
-    end = int(best_by_max_dis[1].split(": ")[1])
-    # check if the number of bp exceeds 10000:
-    # if (abs(start - end)) > 10000:
-    #     start = location_of_site - 5000
-    #     end = location_of_site + 5000
+
+    # Debugging and safety checks
+    if best_by_max_dis is None:
+        print("Error: max_distance returned None.")
+        return 0, 0
+
+
+    try:
+        start = int(best_by_max_dis[0].split(": ")[1])
+        end = int(best_by_max_dis[1].split(": ")[1])
+    except Exception as e:
+        print(f"Warning: Error while parsing best_by_max_dis: {e}. Using default start and end as 0.")
+        start, end = 0, 0
+
     return start, end
+
+    # # chr = best_by_max_dis[4].split(": ")[1]
+    # start = int(best_by_max_dis[0].split(": ")[1])
+    # end = int(best_by_max_dis[1].split(": ")[1])
+    # # check if the number of bp exceeds 10000:
+    # # if (abs(start - end)) > 10000:
+    # #     start = location_of_site - 5000
+    # #     end = location_of_site + 5000
+    # return start, end
 
 # chr added
 # [loc, dis, chr]]
@@ -65,7 +81,11 @@ def find_num_of_sites_in_scope(dis_list, scope):
     ind_of_dis_zero = [dis_list.index(tupl) for tupl in dis_list if tupl[1] == 0]
     ind_of_cur_scope = [dis_list.index(tupl) for tupl in dis_list if tupl[1] == scope]
 
-    site = abs(int(ind_of_cur_scope[0]) - int(ind_of_dis_zero[0]))
-    return site
-
-
+    if ind_of_dis_zero and ind_of_cur_scope:
+        site = abs(int(ind_of_cur_scope[0]) - int(ind_of_dis_zero[0]))
+        return site
+    else:
+        return 0
+    
+    # site = abs(int(ind_of_cur_scope[0]) - int(ind_of_dis_zero[0]))
+    # return site
