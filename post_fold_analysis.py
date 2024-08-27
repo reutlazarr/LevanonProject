@@ -3,13 +3,15 @@ import os
 import pandas as pd
 
 # the function will take the original numbering and change it to match the new numbering of the coloring software
-def ReNumber_the_sequence(start, end, location_of_site):
+def ReNumber_the_sequence(start, end, location_of_site, strand):
     start = round(start)
     end = round(end)
     new_start = 1
     new_end = end - start + 1
     delta = start - new_start  
     new_location_of_site = location_of_site - start + 1 
+    if strand =="-":
+        new_location_of_site = new_end - new_location_of_site
     print("new location of site:" , new_location_of_site)
     return (new_start, new_end, new_location_of_site, delta)
 
@@ -80,12 +82,11 @@ def convert_to_genomic_coords(start_first_strand, end_first_strand, start_second
     converted_end_second_strand = end_second_strand + delta
     return converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand
 
-
-def extract_segment(start, end, st_path, location_of_site):
+def extract_segment(start, end, st_path, location_of_site, strand):
     if start is None or end is None:
         print("Error: Start or end is None, skipping segment extraction.")
         return None, None, None, None
-    new_start, new_end, new_location_of_site, delta = ReNumber_the_sequence(start, end, location_of_site)
+    new_start, new_end, new_location_of_site, delta = ReNumber_the_sequence(start, end, location_of_site, strand)
     print(f"new_location_of_site {new_location_of_site}")
     print(f"the new start is : {new_start} ,the new end is: {new_end} ,the new location of site is: {new_location_of_site}")
     # coords of the location of site's segment

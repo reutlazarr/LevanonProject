@@ -144,7 +144,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
         print(f"Skipping folding for {location_of_site} as sequence length {sequence_length} exceeds 5500 bp.")
         return None
 
-    new_start, new_end, new_location_of_site, delta = post_fold.ReNumber_the_sequence(start, end, location_of_site)
+    new_start, new_end, new_location_of_site, delta = post_fold.ReNumber_the_sequence(start, end, location_of_site, strand)
 
     # Create empty files
     ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool, tool_dir, new_location_of_site)
@@ -155,10 +155,15 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     #we should check this part! with it and without it:
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
+    print("strand is", strand)
+    print("sequence: " , seq_converted)
+
     # print("first", seq_converted)
     # add reverse complement  (-)
     if strand == "-":
+        print("strand is minus!!")
         seq_converted= blast.reverse_complement_rna(seq_converted)
+        print("seq converted is:", seq_converted)
     
     # print("second", seq_converted)
     distance = end - start
@@ -251,7 +256,7 @@ def process_line(line, genome_path, final_df):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/1243427_all_three/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_reut_2708_fixus/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
     
@@ -268,7 +273,7 @@ def process_line(line, genome_path, final_df):
             continue
        
         # Perform the main analysis using the obtained parameters
-        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
+        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
         if converted_start_first_strand is None or converted_end_first_strand is None or converted_start_second_strand is None or converted_end_second_strand is None:
             print("Error - one of the converted parts is None")
         else:
@@ -323,7 +328,7 @@ def create_final_table_structure():
 def united_main():
     # Create the DataFrame
     final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/100_first_sites.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
     with open(bed_file_path, 'r') as bed_file:
@@ -337,4 +342,3 @@ def united_main():
 
 if __name__ == "__main__":
     united_main()
-
