@@ -12,6 +12,7 @@ import json
 import os
 import multiprocessing
 import pandas as pd
+import csv
 
 def is_file_empty(file_path):
     return os.path.isfile(file_path) and os.path.getsize(file_path) == 0
@@ -246,35 +247,40 @@ def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
         sites_from_genome = json.load(sites_from_genome_dict)
         return sites_from_genome
- 
-def process_line(line, genome_path, final_df):
+
+def process_line(line, genome_path, final_df_path):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
-    dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_10_sites/{chr}_{location_of_site}/"
+    dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_10_sites_2/{chr}_{location_of_site}/"
+    
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
 
     tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
-    # tools_list = ["ratio_based_tool"]
+
     for tool in tools_list:
         start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
-        print(f"The original start is: {start}, the original end is: {end}, the original location of site is: {location_of_site}")
-
-        # If st_path is None, skip further processing for this tool
-        # Means there is no editing site in the distance list or that the sequence was too big and there is problem to fold it
+        
         if start is None or end is None or st_path is None:
-            print(f"Skipping post-fold analysis for tool {tool} as st_path is None in {location_of_site}.")
             continue
-       
-        # Perform the main analysis using the obtained parameters
+        
         converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
-        if converted_start_first_strand is None or converted_end_first_strand is None or converted_start_second_strand is None or converted_end_second_strand is None:
-            pass
-        else:
-            final_df = add_line_to_final_df(final_df, chr, int(converted_start_first_strand), int(converted_end_first_strand), int(converted_start_second_strand), int(converted_end_second_strand), "strand", int(location_of_site), "exp", tool)
-            print(f"final df after in {location_of_site}")
-            print(final_df)
+        
+        if converted_start_first_strand is not None and converted_end_first_strand is not None and converted_start_second_strand is not None and converted_end_second_strand is not None:
+            # Prepare the row to write
+            row = [
+                chr, int(converted_start_first_strand), int(converted_end_first_strand),
+                int(converted_start_second_strand), int(converted_end_second_strand),
+                strand, int(location_of_site), "exp", tool
+            ]
+            
+            # Append the row to the final CSV file
+            with open(final_df_path, 'a', newline='') as csvfile:
+                csvwriter = csv.writer(csvfile)
+                csvwriter.writerow(row)
+            print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
+
     
 
 def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
@@ -320,23 +326,29 @@ def create_final_table_structure():
     })
     
     return df
-
 def united_main():
-    # Create the DataFrame
-    final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/10_sites_check.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/10_sites_check.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
+    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_10_sites_2/"
+    final_df_path = os.path.join(site_dir, "final_df.csv")
+
+    # Write the header of the CSV file
+    header = [
+        'chr', 'start_first_strand', 'end_first_strand',
+        'start_second_strand', 'end_second_strand', 
+        'strand', 'editing_site_location', 'exp_level', 'method'
+    ]
+    with open(final_df_path, 'w', newline='') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(header)
+
     with open(bed_file_path, 'r') as bed_file:
         lines = bed_file.readlines()
 
     # Use multiprocessing Pool
-    with multiprocessing.Pool(processes=35) as pool:  # Adjust the number of processes as needed
-        pool.starmap(process_line, [(line, genome_path, final_df) for line in lines])
-    # export the final df to a csv file
-    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_10_sites/"
-    final_df_path = os.path.join(site_dir, "final_df.csv")
-    final_df.to_csv(final_df_path, index=False)
+    with multiprocessing.Pool(processes=35) as pool:
+        pool.starmap(process_line, [(line, genome_path, final_df_path) for line in lines])
 
 if __name__ == "__main__":
     united_main()
