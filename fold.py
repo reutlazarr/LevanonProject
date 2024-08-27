@@ -167,21 +167,21 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     # send it to the folding program:
     if is_file_empty(path_to_mxfold2_result):
         path_to_mxfold2_result = run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result)
-        print(f"after mx by {tool}")
+        print(f"after mx by {tool} in {location_of_site}")
     if is_file_empty(ct_file_path):
         convert_dbn_to_ct(path_to_mxfold2_result, ct_file_path)
-        print("ct_file was empty")
-    print(f"after convertion to ct by {tool}")
+        print(f"ct_file was empty in {location_of_site}")
+    print(f"after convertion to ct by {tool} in in {location_of_site}")
 
     if not (is_file_empty(ct_file_path)) and not (is_file_empty(shape_file_path)) and is_file_empty(svg_file_path):
         run_drawRNAstructure(ct_file_path, shape_file_path, svg_file_path)
-        print(f"after drawRNAst by {tool}")
+        print(f"after drawRNAst by {tool} in {location_of_site}")
     
     # copy everything that's inside the mxfolded file 
     # shutil.copyfile(path_to_mxfold2_result, path_to_bpRNA_result)
     st_path = create_bpRNA_path(path_to_mxfold2_result, tool_dir)
     run_bpRNA(path_to_mxfold2_result, tool_dir, st_path)
-    print(f"after bpRNA by {tool}")
+    print(f"after bpRNA by {tool} in {location_of_site}")
     return st_path
 
 def write_to_fasta_file(location_of_site, sequence, chr, tool_type, site_dir, distance):
@@ -224,18 +224,18 @@ def create_directory_by_tool_type(site_dir_path, tool_type):
 def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand):
     relevant_function = eval(f"{tool}.get_output_{tool}")
     start_point, end_point = relevant_function(dis_list, location_of_site)
-    print(f"end - start in run_by_tool_type {end_point - start_point}")
+    print(f"end - start in run_by_tool_type {end_point - start_point} in in {location_of_site}")
     # Initialize st_path to None or some default value
     st_path = ""
 
     if (start_point == 0 and end_point == 0):
         # st_path = ""
-        print("st_path is none since start point and end point == 0")
+        print(f"st_path is none since start point and end point == 0 in {location_of_site}")
         return None, None, None
     
     else:
         dir = create_directory_by_tool_type(site_dir, tool)
-        print(f"start - end in run by tool type after relevant function {end_point - start_point}")
+        print(f"start - end in run by tool type after relevant function {end_point - start_point} in {location_of_site}")
         st_path= common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir, strand)
 
         if st_path is None:
@@ -251,7 +251,7 @@ def process_line(line, genome_path, final_df):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_2/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_10_sites/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
 
@@ -264,16 +264,16 @@ def process_line(line, genome_path, final_df):
         # If st_path is None, skip further processing for this tool
         # Means there is no editing site in the distance list or that the sequence was too big and there is problem to fold it
         if start is None or end is None or st_path is None:
-            print(f"Skipping post-fold analysis for tool {tool} as st_path is None.")
+            print(f"Skipping post-fold analysis for tool {tool} as st_path is None in {location_of_site}.")
             continue
        
         # Perform the main analysis using the obtained parameters
         converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
         if converted_start_first_strand is None or converted_end_first_strand is None or converted_start_second_strand is None or converted_end_second_strand is None:
-            print("Error - one of the converted parts is None")
+            pass
         else:
             final_df = add_line_to_final_df(final_df, chr, int(converted_start_first_strand), int(converted_end_first_strand), int(converted_start_second_strand), int(converted_end_second_strand), "strand", int(location_of_site), "exp", tool)
-            print("final df\n")
+            print(f"final df after in {location_of_site}")
             print(final_df)
     
 
@@ -324,7 +324,7 @@ def create_final_table_structure():
 def united_main():
     # Create the DataFrame
     final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/problematic_division_sites.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/10_sites_check.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
     with open(bed_file_path, 'r') as bed_file:
@@ -334,7 +334,7 @@ def united_main():
     with multiprocessing.Pool(processes=35) as pool:  # Adjust the number of processes as needed
         pool.starmap(process_line, [(line, genome_path, final_df) for line in lines])
     # export the final df to a csv file
-    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_2/"
+    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_10_sites/"
     final_df_path = os.path.join(site_dir, "final_df.csv")
     final_df.to_csv(final_df_path, index=False)
 
