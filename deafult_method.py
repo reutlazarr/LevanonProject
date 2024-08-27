@@ -54,4 +54,20 @@ def default_distance(dis_list, location_of_site):
         end = location_of_site + 500
 
     print(f"end - start after default_method {end - start}")
+    if pos_dis_sum == 0 and num_of_close_pos_sites != 0:
+        print("ERROR: pos_dis_sum == 0 and num_of_close_pos_sites != 0")
+    if pos_dis_sum != 0 and num_of_close_pos_sites == 0:
+        print("ERROR: pos_dis_sum != 0 and num_of_close_pos_sites == 0")
+    if neg_dis_sum == 0 and num_of_close_neg_sites != 0:
+        print("ERROR: neg_dis_sum == 0 and num_of_close_neg_sites != 0")
+    if neg_dis_sum != 0 and num_of_close_neg_sites == 0:
+        print("ERROR: neg_dis_sum != 0 and num_of_close_neg_sites == 0")
     return start, end
+
+
+
+
+
+
+
+
