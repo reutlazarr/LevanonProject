@@ -212,11 +212,11 @@ def convert_dna_to_formal_format(dna):
 # create directory for each tool
 def create_directory_by_tool_type(site_dir_path, tool_type):
     # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/site_of_interest_analysis/{chr}_{location_of_site}/"
+    print("***************")
     tool_type_dir = f"{site_dir_path}{tool_type}/"
     print(f"the tool type is in : {tool_type_dir}")
-    print("hello from")
+    print("***************")
     if not os.path.exists(tool_type_dir):
-        print("there")
         os.mkdir(tool_type_dir)
         return tool_type_dir
     else : return tool_type_dir
@@ -251,10 +251,10 @@ def process_line(line, genome_path, final_df):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/1243427_all_three/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_2/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
-    
+
     tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
     # tools_list = ["ratio_based_tool"]
     for tool in tools_list:
@@ -275,6 +275,7 @@ def process_line(line, genome_path, final_df):
             final_df = add_line_to_final_df(final_df, chr, int(converted_start_first_strand), int(converted_end_first_strand), int(converted_start_second_strand), int(converted_end_second_strand), "strand", int(location_of_site), "exp", tool)
             print("final df\n")
             print(final_df)
+    
 
 def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
     # Create a new row as a DataFrame
@@ -323,7 +324,7 @@ def create_final_table_structure():
 def united_main():
     # Create the DataFrame
     final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/problematic_division_sites.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
     with open(bed_file_path, 'r') as bed_file:
@@ -333,8 +334,9 @@ def united_main():
     with multiprocessing.Pool(processes=35) as pool:  # Adjust the number of processes as needed
         pool.starmap(process_line, [(line, genome_path, final_df) for line in lines])
     # export the final df to a csv file
-    final_df.to_csv("/private10/Projects/Reut_Shelly/our_tool/data/1243427_all_three/1243427_final_df.csv", index=False)
+    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_2/"
+    final_df_path = os.path.join(site_dir, "final_df.csv")
+    final_df.to_csv(final_df_path, index=False)
 
 if __name__ == "__main__":
     united_main()
-

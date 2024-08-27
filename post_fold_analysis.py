@@ -18,10 +18,10 @@ def parse_st_file(st_file, location_of_site):
     seqs_of_segment = "default_seqs"
     segment = "default_segment"
     length = "default_length"
-    start_first_strand = "default" 
-    end_first_strand = "default"
-    start_second_strand = "default"
-    end_second_strand = "default"
+    start_first_strand = None 
+    end_first_strand = None
+    start_second_strand = None
+    end_second_strand = None
     # Check if the file exists
     if not os.path.exists(st_file):
         print(f"Error: The file {st_file} does not exist.")
@@ -64,15 +64,14 @@ def parse_st_file(st_file, location_of_site):
                 end_second_strand = range2["end"]
                 seqs_of_segment = (l[2], l[-1].strip("\n")) # seqs_of_segment is ('AGG', 'CCU')
                 break  # Ensures that you stop searching once a match is found
-
     return start_first_strand, end_first_strand, start_second_strand, end_second_strand
 
 
 def convert_to_genomic_coords(start_first_strand, end_first_strand, start_second_strand, end_second_strand, delta):
-    if start_first_strand == "default" or end_first_strand == "default" or start_second_strand == "default" or end_second_strand == "default":
+    if start_first_strand == None or end_first_strand == None or start_second_strand == None or end_second_strand == None:
         print("Error: start/end of the segments are empty.")
         return None, None, None, None  # Return four None values to avoid unpacking errors
-    print("start first strand and the rest are not default")
+    print("start first strand and the rest are not None")
     # Add delta to the DataFrame coordinates
     converted_start_first_strand = start_first_strand + delta
     converted_end_first_strand = end_first_strand + delta
@@ -86,8 +85,7 @@ def extract_segment(start, end, st_path, location_of_site):
         print("Error: Start or end is None, skipping segment extraction.")
         return None, None, None, None
     new_start, new_end, new_location_of_site, delta = ReNumber_the_sequence(start, end, location_of_site)
-    print(f"new_location_of_site {new_location_of_site}")
-    print(f"the new start is : {new_start} ,the new end is: {new_end} ,the new location of site is: {new_location_of_site}")
+    print(f"After renumber the seq:  the new start is : {new_start} ,the new end is: {new_end} ,the new location of site is: {new_location_of_site}")
     # coords of the location of site's segment
     start_first_strand, end_first_strand, start_second_strand, end_second_strand = parse_st_file(st_path, new_location_of_site)
     if start_first_strand is None or end_first_strand is None or start_second_strand is None or end_second_strand is None:
