@@ -58,19 +58,20 @@ def check_bed_file_validity(line):
     new_line = line.split()
     if len(new_line) < 6:
         print(f"{line} \n INVALID LINE - LESS THAN 6 COLUMNS")
-        return
-    if new_line[1].isdigit() == False:
+        return False
+    if not new_line[1].isdigit():
         print(f"{line} \n INVALID LINE - NO PROPER START POINT")
-        return
-    if new_line[2].isdigit() == False:
+        return False
+    if not new_line[2].isdigit():
         print(f"{line} \n INVALID LINE - NO PROPER END POINT")
-        return
+        return False
     if int(new_line[1]) >= int(new_line[2]):
         print(f"{line} \n INVALID LINE - END POINT IS NOT BIGGER THAN START POINT")
-        return
-    if new_line[5] != "+" and new_line[5] != "-" and new_line[5] != ".":
+        return False
+    if new_line[5] not in ["+", "-", "."]:
         print(f"{line} \n INVALID LINE - STRAND COLUMN IS NOT VALID")
-        return
+        return False
+    return True
 
 # call out four functions and send their output to the folding program
 
@@ -156,15 +157,15 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     #we should check this part! with it and without it:
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
-    print("strand is", strand)
-    print("sequence: " , seq_converted)
+    # print("strand is", strand)
+    # print("sequence: " , seq_converted)
 
     # print("first", seq_converted)
     # add reverse complement  (-)
     if strand == "-":
         print("strand is minus!!")
         seq_converted= blast.reverse_complement_rna(seq_converted)
-        print("seq converted is:", seq_converted)
+        # print("seq converted is:", seq_converted)
     
     # print("second", seq_converted)
     distance = end - start
@@ -230,7 +231,7 @@ def create_directory_by_tool_type(site_dir_path, tool_type):
 def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand):
     relevant_function = eval(f"{tool}.get_output_{tool}")
     start_point, end_point = relevant_function(dis_list, location_of_site)
-    print(f"end - start in run_by_tool_type {end_point - start_point} in in {location_of_site}")
+    print(f"end - start in run_by_tool_type is {end_point - start_point} in {location_of_site}")
     # Initialize st_path to None or some default value
     st_path = ""
 
@@ -254,10 +255,11 @@ def open_json_file_for_reading(file):
         return sites_from_genome
 
 def process_line(line, genome_path, final_df_path):
-    check_bed_file_validity(line)
+    if not check_bed_file_validity(line):
+        raise ValueError(f"Invalid BED file line: {line}")
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/1243427_all_three/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/300_to_600_3008/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
 
@@ -269,7 +271,7 @@ def process_line(line, genome_path, final_df_path):
         if start is None or end is None or st_path is None:
             continue
         
-        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site)
+        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
         
         if converted_start_first_strand is not None and converted_end_first_strand is not None and converted_start_second_strand is not None and converted_end_second_strand is not None:
             # Prepare the row to write
@@ -333,10 +335,10 @@ def create_final_table_structure():
 def united_main():
     # Create the DataFrame
     final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/site.bed"
+    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/300_to_600.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
-    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/sites_shelly_2708_10_sites_2/"
+    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/300_to_600_3008/"
     final_df_path = os.path.join(site_dir, "final_df.csv")
 
     # Write the header of the CSV file
@@ -355,6 +357,7 @@ def united_main():
     # Use multiprocessing Pool
     with multiprocessing.Pool(processes=35) as pool:
         pool.starmap(process_line, [(line, genome_path, final_df_path) for line in lines])
+    print("EVERYTHING IS DONE")
 
 if __name__ == "__main__":
     united_main()

@@ -21,7 +21,7 @@ def min_distance_for_positive(dis_list):
     # list of tuples containing scope and ratio of number of sites/ distance
     scope_ratio_num_of_editing_sites = []
     # for each scope, itearate the different editing sites
-    for scope in range(0, 10000, 200):
+    for scope in range(1, 10000, 200):
         site_count = 0
         for _, site_dis_chr in enumerate(dis_list):
             # first is distance, sec is ratio, third is site, fourth is chr
@@ -37,14 +37,19 @@ def min_distance_for_positive(dis_list):
                     scope_ratio_num_of_editing_sites[-1][2] = "site: " + str(site_count)
                     scope_ratio_num_of_editing_sites[-1][3] = "chr: " + str(chr_of_specific_site)
                 else: 
+                    # the following range is firstly added to scope_ratio_num_of_editing_sites
                     scope_ratio_num_of_editing_sites.append(["scope: " +str(scope), "ratio: " + str(ratio), "site: " + str(site_count), "chr: " + str(chr_of_specific_site)])
-    return scope_ratio_num_of_editing_sites
+    # if scope_ratio_num_of_editing_sites is epty, return None
+    if not scope_ratio_num_of_editing_sites:
+        return None
+    else:
+        return scope_ratio_num_of_editing_sites
 
 def min_distance_for_negative(dis_list):
          # list of tuples cotaining scope and ratio of number of sites/ distance
     scope_ratio_num_of_editing_sites = []
     # for each scope, itearate the different editing sites
-    for scope in range(0, -10000, -200):
+    for scope in range(-1, -10000, -200):
         site_count = 0
         for _, site_dis_str in enumerate(dis_list):
             # first is distance, sec is ratio, third is 
@@ -61,14 +66,28 @@ def min_distance_for_negative(dis_list):
                     scope_ratio_num_of_editing_sites[-1][3] = "chr: " + str(chr_of_specific_site)
                 else: 
                     scope_ratio_num_of_editing_sites.append(["scope: " +str(scope), "ratio: " + str(ratio), "site: " + str(site_count), "chr: " + str(chr_of_specific_site)])
-    return scope_ratio_num_of_editing_sites
+        # if scope_ratio_num_of_editing_sites is epty, return None
+    if not scope_ratio_num_of_editing_sites:
+        return None
+    else:
+        return scope_ratio_num_of_editing_sites
 
 # find the ideal distance by first sort the list by the ratio and then return its matching window
 def find_optimal_dis_in_scope_and_ratio(scope_ratio_num_of_editing_sites_p, scope_ratio_num_of_editing_sites_n):
-    scope_ratio_num_of_editing_sites_p += scope_ratio_num_of_editing_sites_n
-    n_p_sorted = sorted(scope_ratio_num_of_editing_sites_p, key=lambda x: float(x[1].split(': ')[1]))
-    n_p_sorted_best_10 = n_p_sorted[len(n_p_sorted) - 10 :len(n_p_sorted)]
-    return n_p_sorted_best_10
+    # if both are not None
+    if scope_ratio_num_of_editing_sites_n != None and scope_ratio_num_of_editing_sites_p != None:
+        scope_ratio_num_of_editing_sites_p += scope_ratio_num_of_editing_sites_n
+        n_p_sorted = sorted(scope_ratio_num_of_editing_sites_p, key=lambda x: float(x[1].split(': ')[1]))
+        n_p_sorted_best_10 = n_p_sorted[len(n_p_sorted) - 10 :len(n_p_sorted)]
+        return n_p_sorted_best_10
+    if scope_ratio_num_of_editing_sites_n == None and scope_ratio_num_of_editing_sites_p != None:
+        p_sorted = sorted(scope_ratio_num_of_editing_sites_p, key=lambda x: float(x[1].split(': ')[1]))
+        p_sorted_best_10 = p_sorted[len(p_sorted) - 10 :len(p_sorted)]
+        return p_sorted_best_10
+    if scope_ratio_num_of_editing_sites_n != None and scope_ratio_num_of_editing_sites_p == None:
+        n_sorted = sorted(scope_ratio_num_of_editing_sites_n, key=lambda x: float(x[1].split(': ')[1]))
+        n_sorted_best_10 = n_sorted[len(n_sorted) - 10 :len(n_sorted)]
+        return n_sorted_best_10
 
 # chr added
 # create different combinations of optimal scopes
