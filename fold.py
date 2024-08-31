@@ -255,15 +255,22 @@ def open_json_file_for_reading(file):
         # return sites_from_genome
 
 # def process_line(line, genome_path, final_df_path, sites_counter):
-def process_line(line, genome_path, final_df_path):
-    # count the number of analyzed sites
-    # sites_counter += 1
-    # print(f'sites counter {sites_counter}')
+# Adjusted function to use a Manager for the lock
+def process_line(line, genome_path, final_df_path, no_segment_df_path, lock_final, lock_no_segment):
+
     if not check_bed_file_validity(line):
-        raise ValueError(f"Invalid BED file line: {line}")
+        no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
+        # Acquire the lock before writing to the CSV file
+        with lock_no_segment:
+            with open(no_segment_df_path, 'a', newline='') as csvfile2:
+                csvwriter2 = csv.writer(csvfile2)
+                csvwriter2.writerow(no_segment_row)
+
+    
     fields = line.strip().split('\t')
-    dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/2776021_3108_1/{chr}_{location_of_site}/"
+    dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
+    
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/10_sites_new_df_3108/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
 
@@ -271,13 +278,22 @@ def process_line(line, genome_path, final_df_path):
 
     for tool in tools_list:
         start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
-        
         if start is None or end is None or st_path is None:
-            continue
+            no_segment_row = [int(location_of_site), tool, "st_path is None"]
+            # Acquire the lock before writing to the CSV file
+            with lock_no_segment:
+                with open(no_segment_df_path, 'a', newline='') as csvfile2:
+                    csvwriter2 = csv.writer(csvfile2)
+                    csvwriter2.writerow(no_segment_row)
+                    continue
         
-        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
+        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand, lock_no_segment)
         
-        if converted_start_first_strand is not None and converted_end_first_strand is not None and converted_start_second_strand is not None and converted_end_second_strand is not None:
+        if (converted_start_first_strand is not None and 
+            converted_end_first_strand is not None and 
+            converted_start_second_strand is not None and 
+            converted_end_second_strand is not None):
+            
             # Prepare the row to write
             row = [
                 chr, int(converted_start_first_strand), int(converted_end_first_strand),
@@ -285,12 +301,19 @@ def process_line(line, genome_path, final_df_path):
                 strand, int(location_of_site), "exp", tool
             ]
             
-            # Append the row to the final CSV file
-            with open(final_df_path, 'a', newline='') as csvfile:
-                csvwriter = csv.writer(csvfile)
-                csvwriter.writerow(row)
+            # Acquire the lock before writing to the CSV file
+            with lock_final:
+                with open(final_df_path, 'a', newline='') as csvfile:
+                    csvwriter = csv.writer(csvfile)
+                    csvwriter.writerow(row)
             print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
-    # return sites_counter
+        else:
+            no_segment_row = [int(location_of_site), tool, "one of the converted start/end is None"]
+            # Acquire the lock before writing to the CSV file
+            with lock_no_segment:
+                with open(no_segment_df_path, 'a', newline='') as csvfile2:
+                    csvwriter2 = csv.writer(csvfile2)
+                    csvwriter2.writerow(no_segment_row)
     
 
 def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
@@ -339,11 +362,13 @@ def create_final_table_structure():
 
 def united_main():
     final_df = create_final_table_structure()
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/2776021_site.bed"
+    no_segment_df = pd.DataFrame(columns=['editing_site', 'method', 'error'])
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/10_sites_check.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
-    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/2776021_3108_1/"
+    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/10_sites_new_df_3108/"
     final_df_path = os.path.join(site_dir, "final_df.csv")
+    no_segment_df_path = os.path.join(site_dir, "no_segment_df.csv")
 
     # Write the header of the CSV file
     header = [
@@ -355,16 +380,23 @@ def united_main():
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(header)
 
+    with open(no_segment_df_path, 'w', newline='') as csvfile2:
+        csvwriter2 = csv.writer(csvfile2)
+        csvwriter2.writerow(header)
+
     with open(bed_file_path, 'r') as bed_file:
         lines = bed_file.readlines()
 
-    # sites_counter = 0
-    with multiprocessing.Pool(processes=35) as pool:
-        pool.starmap(process_line, [(line, genome_path, final_df_path) for line in lines])
-    #     results = pool.starmap(process_line, [(line, genome_path, final_df_path, sites_counter) for line in lines])
+    # Create a Manager object to manage shared resources
+    with multiprocessing.Manager() as manager:
+        lock_final = manager.Lock()
+    
+    with multiprocessing.Manager() as manager2:
+        lock_no_segment = manager2.Lock()
 
-    # total_sites_processed = sum(results)
-    # print(f"Total editing sites analyzed: {total_sites_processed}")
+    with multiprocessing.Pool(processes=35) as pool:
+        pool.starmap(process_line, [(line, genome_path, final_df_path, no_segment_df_path, lock_final, lock_no_segment) for line in lines])
+    
     print("EVERYTHING IS DONE")
 
 if __name__ == "__main__":
