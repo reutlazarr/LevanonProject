@@ -252,17 +252,18 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
 def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
         sites_from_genome = json.load(sites_from_genome_dict)
-        return sites_from_genome
+        # return sites_from_genome
 
-def process_line(line, genome_path, final_df_path, sites_counter):
+# def process_line(line, genome_path, final_df_path, sites_counter):
+def process_line(line, genome_path, final_df_path):
     # count the number of analyzed sites
-    sites_counter += 1
-    print(f'sites counter {sites_counter}')
+    # sites_counter += 1
+    # print(f'sites counter {sites_counter}')
     if not check_bed_file_validity(line):
         raise ValueError(f"Invalid BED file line: {line}")
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/2776021_3008_2/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/2776021_3108_1/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
 
@@ -289,7 +290,7 @@ def process_line(line, genome_path, final_df_path, sites_counter):
                 csvwriter = csv.writer(csvfile)
                 csvwriter.writerow(row)
             print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
-    return sites_counter
+    # return sites_counter
     
 
 def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
@@ -341,7 +342,7 @@ def united_main():
     bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/2776021_site.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     
-    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/2776021_3008_2/"
+    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/2776021_3108_1/"
     final_df_path = os.path.join(site_dir, "final_df.csv")
 
     # Write the header of the CSV file
@@ -357,12 +358,13 @@ def united_main():
     with open(bed_file_path, 'r') as bed_file:
         lines = bed_file.readlines()
 
-    sites_counter = 0
+    # sites_counter = 0
     with multiprocessing.Pool(processes=35) as pool:
-        results = pool.starmap(process_line, [(line, genome_path, final_df_path, sites_counter) for line in lines])
+        pool.starmap(process_line, [(line, genome_path, final_df_path) for line in lines])
+    #     results = pool.starmap(process_line, [(line, genome_path, final_df_path, sites_counter) for line in lines])
 
-    total_sites_processed = sum(results)
-    print(f"Total editing sites analyzed: {total_sites_processed}")
+    # total_sites_processed = sum(results)
+    # print(f"Total editing sites analyzed: {total_sites_processed}")
     print("EVERYTHING IS DONE")
 
 if __name__ == "__main__":
