@@ -266,8 +266,7 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path):
     
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
-    
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/10_sites_new_df_3108/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/2502701_site/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
 
@@ -326,6 +325,41 @@ def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, st
     
     return final_df
 
+def sort_df(orig_path, file_name):
+    # Read the CSV file into a DataFrame
+    df = pd.read_csv(orig_path)
+
+    # Sort the DataFrame by the 'editing_site' column
+    df_sorted = df.sort_values(by='editing_site_location')
+
+    # Define the output file name
+    output_file = f'sorted_{file_name}'
+
+    # Save the sorted DataFrame to a new CSV file
+    df_sorted.to_csv(output_file, index=False)
+
+    # If you just want to see the sorted DataFrame
+    return output_file
+
+
+def create_no_segment_df():
+    # Define the data structure with three columns
+    data = {
+        'editing_site_location': [],  # Column for the editing site location
+        'method': [],                 # Column for the method
+        'error': []                   # Column for the error
+    }
+    
+    # Create the DataFrame with the specified structure
+    df = pd.DataFrame(data)
+    
+    # Ensure the 'editing_site_location' column is treated as an integer
+    df = df.astype({
+        'editing_site_location': 'int'
+    })
+    
+    return df
+
 def create_final_table_structure():
     data = {
         'chr': [],
@@ -351,29 +385,31 @@ def create_final_table_structure():
     
     return df
 
+
+
 def united_main():
-    final_df = create_final_table_structure()
-    no_segment_df = pd.DataFrame(columns=['editing_site', 'method', 'error'])
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/10_sites_check.bed"
+    # final_df = create_final_table_structure()
+    # no_segment_df = create_no_segment_df()
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/2502701_site.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    
-    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/10_sites_new_df_3108/"
+    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/2502701_site/"
     final_df_path = os.path.join(site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(site_dir, "no_segment_df.csv")
 
     # Write the header of the CSV file
-    header = [
+    header_final_df = [
         'chr', 'start_first_strand', 'end_first_strand',
         'start_second_strand', 'end_second_strand', 
         'strand', 'editing_site_location', 'exp_level', 'method'
     ]
+    header_no_segment = ['editing_site_location', 'method', 'error']
     with open(final_df_path, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(header)
+        csvwriter.writerow(header_final_df)
 
     with open(no_segment_df_path, 'w', newline='') as csvfile2:
         csvwriter2 = csv.writer(csvfile2)
-        csvwriter2.writerow(header)
+        csvwriter2.writerow(header_no_segment)
 
     with open(bed_file_path, 'r') as bed_file:
         lines = bed_file.readlines()
@@ -381,6 +417,8 @@ def united_main():
     with multiprocessing.Pool(processes=35) as pool:
         pool.starmap(process_line, [(line, genome_path, final_df_path, no_segment_df_path) for line in lines])
     
+    sorted_final_df = sort_df(final_df_path, "sorted_final_df")
+    sorted_no_segment_df = sort_df(no_segment_df_path, "sorted_no_segmentt")
     print("EVERYTHING IS DONE")
 
 if __name__ == "__main__":
