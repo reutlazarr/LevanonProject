@@ -1,25 +1,29 @@
 def get_output_ratio_based_tool(dis_list, location_of_site):
     # edge case: our site of interest has no other sites in its vicinity, thus folding it is irrelevant
+    print(f"debug 0309: {dis_list}")
     if len(dis_list) == 1:
         print("SITE OF INTEREST HAS NO SURROUNDING EDITING SITES")
         return 0,0
     # call the func based on best ratio
     # the output starts with scope
     min_positive = min_distance_for_positive(dis_list)
-    # print(f"debug 0209: min_positive {min_positive}")
+    print(f"debug 0209: min_positive {min_positive}")
     min_negative = min_distance_for_negative(dis_list)
-    # print(f"debug 0209: min_negative {min_negative}")
-    best_ten = find_optimal_dis_in_scope_and_ratio(min_positive, min_negative)
-    # print(f"debug 0209: best_ten {best_ten}")
-    # the output starts with "start"
-    new_combinations = new_ratio_combinations(best_ten, location_of_site)
-    # print(f"debug 0209: new_combinations {new_combinations}")
-    best_ratio_based_list = get_best_ratio(best_ten, new_combinations, location_of_site)
-    # chr = best_ratio_based_list[5].split(": ")[1]
-    start = int(best_ratio_based_list[0].split(": ")[1])
-    end = int(best_ratio_based_list[1].split(": ")[1])
-    return start, end
-
+    print(f"debug 0209: min_negative {min_negative}")
+    # the editing site has neighbors but they are more than 10,000/-10000 bases away.
+    if min_positive is None and min_negative is None:
+        return 0,0
+    else:
+        best_ten = find_optimal_dis_in_scope_and_ratio(min_positive, min_negative)
+        print(f"debug 0209: best_ten {best_ten}")
+        # the output starts with "start"
+        new_combinations = new_ratio_combinations(best_ten, location_of_site)
+        # print(f"debug 0209: new_combinations {new_combinations}")
+        best_ratio_based_list = get_best_ratio(best_ten, new_combinations, location_of_site)
+        # chr = best_ratio_based_list[5].split(": ")[1]
+        start = int(best_ratio_based_list[0].split(": ")[1])
+        end = int(best_ratio_based_list[1].split(": ")[1])
+        return start, end
 
 
 # dislist is made of [site (not of interest), scope, chr]
@@ -45,7 +49,7 @@ def min_distance_for_positive(dis_list):
                 else: 
                     # the following range is firstly added to scope_ratio_num_of_editing_sites
                     scope_ratio_num_of_editing_sites.append(["scope: " +str(scope), "ratio: " + str(ratio), "site: " + str(site_count), "chr: " + str(chr_of_specific_site)])
-    # if scope_ratio_num_of_editing_sites is epty, return None
+    # if scope_ratio_num_of_editing_sites is eצpty, return None
     if not scope_ratio_num_of_editing_sites:
         return None
     else:

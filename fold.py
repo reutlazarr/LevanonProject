@@ -255,7 +255,7 @@ def open_json_file_for_reading(file):
         # return sites_from_genome
 
 # def process_line(line, genome_path, final_df_path, sites_counter):
-def process_line(line, genome_path, final_df_path, no_segment_df_path):
+def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
 
     if not check_bed_file_validity(line):
         no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
@@ -266,7 +266,7 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path):
     
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/300_to_600_0209_2/{chr}_{location_of_site}/"
+    site_dir = f"{orig_site_dir}{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
 
@@ -385,11 +385,11 @@ def create_final_table_structure():
     return df
 
 def united_main():
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/300_to_600.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/456_to_600.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/300_to_600_0209_2/"
-    final_df_path = os.path.join(site_dir, "final_df.csv")
-    no_segment_df_path = os.path.join(site_dir, "no_segment_df.csv")
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/456_600/"
+    final_df_path = os.path.join(orig_site_dir, "final_df.csv")
+    no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
 
     # Write the header of the CSV files
     header_final_df = [
@@ -411,7 +411,7 @@ def united_main():
         lines = bed_file.readlines()
 
     for line in lines:
-        process_line(line, genome_path, final_df_path, no_segment_df_path)
+        process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
     
     sorted_final_df = sort_df(final_df_path, "sorted_final_df")
     sorted_no_segment_df = sort_df(no_segment_df_path, "sorted_no_segment")
@@ -419,3 +419,5 @@ def united_main():
 
 if __name__ == "__main__":
     united_main()
+
+
