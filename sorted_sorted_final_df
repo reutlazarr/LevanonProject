@@ -1,4 +1,1 @@
 chr,start_first_strand,end_first_strand,start_second_strand,end_second_strand,strand,editing_site_location,exp_level,method
-chr1,2502702,2502728,2502733,2502758,+,2502701,exp,default_tool
-chr1,2502702,2502714,2503891,2503901,+,2502701,exp,ratio_based_tool
-chr1,2502702,2502728,2502733,2502758,+,2502701,exp,max_distance_tool

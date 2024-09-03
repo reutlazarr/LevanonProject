@@ -6,15 +6,21 @@ def get_output_ratio_based_tool(dis_list, location_of_site):
     # call the func based on best ratio
     # the output starts with scope
     min_positive = min_distance_for_positive(dis_list)
+    # print(f"debug 0209: min_positive {min_positive}")
     min_negative = min_distance_for_negative(dis_list)
+    # print(f"debug 0209: min_negative {min_negative}")
     best_ten = find_optimal_dis_in_scope_and_ratio(min_positive, min_negative)
+    # print(f"debug 0209: best_ten {best_ten}")
     # the output starts with "start"
     new_combinations = new_ratio_combinations(best_ten, location_of_site)
+    # print(f"debug 0209: new_combinations {new_combinations}")
     best_ratio_based_list = get_best_ratio(best_ten, new_combinations, location_of_site)
     # chr = best_ratio_based_list[5].split(": ")[1]
     start = int(best_ratio_based_list[0].split(": ")[1])
     end = int(best_ratio_based_list[1].split(": ")[1])
     return start, end
+
+
 
 # dislist is made of [site (not of interest), scope, chr]
 def min_distance_for_positive(dis_list):
@@ -93,7 +99,22 @@ def find_optimal_dis_in_scope_and_ratio(scope_ratio_num_of_editing_sites_p, scop
 # create different combinations of optimal scopes
 # extract start, end
 def new_ratio_combinations(n_p_sorted_best_10, location_of_site):
+    print(f"debug 0209: n_p_sorted_best_10 {n_p_sorted_best_10}")
     combi_scopes_ratios_sites = []
+    if len(n_p_sorted_best_10) == 1:
+        print(f"len(n_p): {len(n_p_sorted_best_10)}")
+        scope = int(n_p_sorted_best_10[0][0].split(': ')[1])
+        if scope > 0:
+            start = location_of_site - 20
+            end = location_of_site + scope
+        if scope < 0:
+            start = location_of_site + scope
+            end = location_of_site + 20
+        cur_num_site = int(n_p_sorted_best_10[0][2].split(': ')[1])
+        cur_ratio = n_p_sorted_best_10[0][1].split(': ')[1]
+        chr = n_p_sorted_best_10[0][3].split(': ')[1]
+        combi_scopes_ratios_sites.append(["start: " + str(start), "end: " + str(end), "scope: " +str(scope), "ratio: " + str(cur_ratio), "site: " + str(cur_num_site), "chr: " + str(chr)])
+        return combi_scopes_ratios_sites
     # create new combinations of scopes and ratios
     for item1 in n_p_sorted_best_10:
         for item2 in n_p_sorted_best_10:
@@ -133,8 +154,11 @@ def new_ratio_combinations(n_p_sorted_best_10, location_of_site):
 # compare the two of them
 # return the best ratio
 def get_best_ratio(n_p_sorted_best_10, combi_scopes_ratios_sites, location_of_site):
+    # print(f"debug 0209: combi_scopes_ratio_sites {combi_scopes_ratios_sites}")
     combi_sorted = sorted(combi_scopes_ratios_sites, key=lambda x: float(x[3].split(': ')[1]))
     # extract the last item since the array is increasingly sorted
+    # print(f"debug 0209: combi sorted size is {len(combi_sorted)}")
+    # print(f"debug 0209: combi sorted {combi_sorted}")
     best_from_combi = combi_sorted[len(combi_sorted) - 1]
     best_from_best_10 = n_p_sorted_best_10[len(n_p_sorted_best_10) - 1]
     site_best_from_best_10 = int(best_from_best_10[2].split(": ")[1]) 

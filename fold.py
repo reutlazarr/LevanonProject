@@ -266,7 +266,7 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path):
     
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/2502701_site/{chr}_{location_of_site}/"
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/300_to_600_0209_2/{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
 
@@ -341,7 +341,6 @@ def sort_df(orig_path, file_name):
     # If you just want to see the sorted DataFrame
     return output_file
 
-
 def create_no_segment_df():
     # Define the data structure with three columns
     data = {
@@ -385,24 +384,21 @@ def create_final_table_structure():
     
     return df
 
-
-
 def united_main():
-    # final_df = create_final_table_structure()
-    # no_segment_df = create_no_segment_df()
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/2502701_site.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/300_to_600.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/2502701_site/"
+    site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/300_to_600_0209_2/"
     final_df_path = os.path.join(site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(site_dir, "no_segment_df.csv")
 
-    # Write the header of the CSV file
+    # Write the header of the CSV files
     header_final_df = [
         'chr', 'start_first_strand', 'end_first_strand',
         'start_second_strand', 'end_second_strand', 
         'strand', 'editing_site_location', 'exp_level', 'method'
     ]
     header_no_segment = ['editing_site_location', 'method', 'error']
+    
     with open(final_df_path, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(header_final_df)
@@ -414,11 +410,11 @@ def united_main():
     with open(bed_file_path, 'r') as bed_file:
         lines = bed_file.readlines()
 
-    with multiprocessing.Pool(processes=35) as pool:
-        pool.starmap(process_line, [(line, genome_path, final_df_path, no_segment_df_path) for line in lines])
+    for line in lines:
+        process_line(line, genome_path, final_df_path, no_segment_df_path)
     
     sorted_final_df = sort_df(final_df_path, "sorted_final_df")
-    sorted_no_segment_df = sort_df(no_segment_df_path, "sorted_no_segmentt")
+    sorted_no_segment_df = sort_df(no_segment_df_path, "sorted_no_segment")
     print("EVERYTHING IS DONE")
 
 if __name__ == "__main__":
