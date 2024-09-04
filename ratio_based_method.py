@@ -31,7 +31,7 @@ def min_distance_for_positive(dis_list):
     # list of tuples containing scope and ratio of number of sites/ distance
     scope_ratio_num_of_editing_sites = []
     # for each scope, itearate the different editing sites
-    for scope in range(1, 10000, 200):
+    for scope in range(1, 4000, 200):
         site_count = 0
         for _, site_dis_chr in enumerate(dis_list):
             # first is distance, sec is ratio, third is site, fourth is chr
@@ -59,7 +59,7 @@ def min_distance_for_negative(dis_list):
          # list of tuples cotaining scope and ratio of number of sites/ distance
     scope_ratio_num_of_editing_sites = []
     # for each scope, itearate the different editing sites
-    for scope in range(-1, -10000, -200):
+    for scope in range(-1, -4000, -200):
         site_count = 0
         for _, site_dis_str in enumerate(dis_list):
             # first is distance, sec is ratio, third is 
@@ -109,15 +109,15 @@ def new_ratio_combinations(n_p_sorted_best_10, location_of_site):
         print(f"len(n_p): {len(n_p_sorted_best_10)}")
         scope = int(n_p_sorted_best_10[0][0].split(': ')[1])
         if scope > 0:
-            start = location_of_site - 20
+            start = location_of_site - 30
             end = location_of_site + scope
         if scope < 0:
             start = location_of_site + scope
-            end = location_of_site + 20
+            end = location_of_site + 30
         cur_num_site = int(n_p_sorted_best_10[0][2].split(': ')[1])
         cur_ratio = n_p_sorted_best_10[0][1].split(': ')[1]
         chr = n_p_sorted_best_10[0][3].split(': ')[1]
-        combi_scopes_ratios_sites.append(["start: " + str(start), "end: " + str(end), "scope: " +str(scope), "ratio: " + str(cur_ratio), "site: " + str(cur_num_site), "chr: " + str(chr)])
+        combi_scopes_ratios_sites.append(["start: " + str(start), "end: " + str(end), "scope: " + str(scope), "ratio: " + str(cur_ratio), "site: " + str(cur_num_site), "chr: " + str(chr)])
         return combi_scopes_ratios_sites
     # create new combinations of scopes and ratios
     for item1 in n_p_sorted_best_10:

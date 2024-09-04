@@ -20,10 +20,10 @@ def default_distance(dis_list, location_of_site):
 
     for _, item in enumerate(dis_list):
         dis = item[1]
-        if dis > 0 and dis < 10000:
+        if dis > 0 and dis < 4000:
             pos_dis_sum += dis
             num_of_close_pos_sites += 1
-        if dis < 0 and dis > -10000:
+        if dis < 0 and dis > -4000:
             neg_dis_sum += dis
             num_of_close_neg_sites += 1
 
