@@ -43,12 +43,12 @@ def max_distance(dis_list, location_of_site):
     max_scope = max_tuple[1]
     min_scope = min_tuple[1]
     if max_scope > 0 and min_scope > 0:
-        start = location_of_site - 20 
+        start = location_of_site - 30 
         end = location_of_site + max_scope
         site = find_num_of_sites_in_scope(dis_list, max_scope)
     elif max_scope < 0 and min_scope < 0:
         start = location_of_site + min_scope
-        end = location_of_site
+        end = location_of_site + 30
         site = find_num_of_sites_in_scope(dis_list, min_scope)
     elif max_scope > 0 and min_scope < 0:
         start = location_of_site + min_scope
@@ -68,10 +68,11 @@ def max_distance(dis_list, location_of_site):
     scope = end - start
     chr = str(max_tuple[2])
     # site == num of sites in the current scope
-    if int(end)- int(start) < 9999:
+    print(f'end - start is {end - start}')
+    if int(end)- int(start) < 5600:
         return ["start: " + str(start), "end: " + str(end), "scope: " + str(scope), "site: " + str(site), "chr: " + str(chr)]
     else:
-        pass
+        return None
         # Check the length of the gene and assign a distance of 9999 if the editing site is located in the middle
         #gene_length = get_gene_length(gene_name)
 # new
@@ -86,6 +87,3 @@ def find_num_of_sites_in_scope(dis_list, scope):
         return site
     else:
         return 0
-    
-    # site = abs(int(ind_of_cur_scope[0]) - int(ind_of_dis_zero[0]))
-    # return site
