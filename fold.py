@@ -37,6 +37,7 @@ def run_bpRNA(path_to_dbn_file, site_dir, st_path):
         print(f"Output .st file is empty. Something went wrong with bpRNA for file: {path_to_dbn_file}")
     return st_path
 
+
 def create_bpRNA_path(path_to_dbn_file, site_dir):
     # create out file name
     out_f = path_to_dbn_file.split("/")[-1]
@@ -45,14 +46,17 @@ def create_bpRNA_path(path_to_dbn_file, site_dir):
     st_path = site_dir + out_f
     return st_path
 
+
 def remove_suffix(input_string, suffix):
     if suffix and input_string.endswith(suffix):
         return input_string[:-len(suffix)]
     return input_string
 
+
 def convert_dbn_to_ct(dbn_file, ct_file):
     path_to_sh_draw = "/private10/Projects/Reut_Shelly/our_tool/data/draw_RNA_structures/run_dot_to_ct.sh"
     subprocess.run([path_to_sh_draw, dbn_file, ct_file], capture_output=True, text=True)
+
 
 def check_bed_file_validity(line):
     new_line = line.split()
@@ -74,7 +78,6 @@ def check_bed_file_validity(line):
     return True
 
 # call out four functions and send their output to the folding program
-
 # run the folding program
 def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
     print("run mx")
@@ -83,9 +86,9 @@ def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
     print("run completed")
     return path_to_mxfold2_result
 
+
 # create different kind of files
 # the shape file is now a default one 
-
 def create_files(location_of_site, tool_type, tool_dir, new_location_of_site):
     try:
         # Create path to ct file inside the relevant directory
@@ -122,6 +125,7 @@ def create_files(location_of_site, tool_type, tool_dir, new_location_of_site):
         print(f"Error in create_files: {e}")
         return None, None, None, None
 
+
 def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_site_position, score):
     shape_file_name = f'{location_of_site}_{tool_type}.shape'
     shape_file_path = os.path.join(tool_dir, shape_file_name)
@@ -135,6 +139,7 @@ def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_
         print(f"Error in create_shape_file_for_editing_site: {e}")
 
     return shape_file_path
+
 
 # this part is shared by the four different tools
 def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, tool_dir, strand):
@@ -151,15 +156,12 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     # Create empty files
     ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool, tool_dir, new_location_of_site)
     gr = genome_reader(genome_path)
-    
+    print("start: ", start, "end: ", end)
     unconverted_seq = gr.get_fasta(chr, int(start-1), int(end-1))
     # print(unconverted_seq)
     #we should check this part! with it and without it:
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
-    # print("strand is", strand)
-    # print("sequence: " , seq_converted)
-
     # print("first", seq_converted)
     # add reverse complement  (-)
     if strand == "-":
@@ -167,7 +169,6 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
         seq_converted= blast.reverse_complement_rna(seq_converted)
         # print("seq converted is:", seq_converted)
     
-    # print("second", seq_converted)
     distance = end - start
     fasta_seq_to_fold = write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
@@ -189,7 +190,8 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     st_path = create_bpRNA_path(path_to_mxfold2_result, tool_dir)
     run_bpRNA(path_to_mxfold2_result, tool_dir, st_path)
     print(f"after bpRNA by {tool} in {location_of_site}")
-    return st_path
+    return st_path, nucleotide
+
 
 def write_to_fasta_file(location_of_site, sequence, chr, tool_type, site_dir, distance):
     sequence_path_name = f"{location_of_site}_{tool_type}.fa"
@@ -216,6 +218,7 @@ def convert_dna_to_formal_format(dna):
             new_dna += '\n'
     return new_dna
 
+
 # create directory for each tool
 def create_directory_by_tool_type(site_dir_path, tool_type):
     # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/site_of_interest_analysis/{chr}_{location_of_site}/"
@@ -227,6 +230,7 @@ def create_directory_by_tool_type(site_dir_path, tool_type):
         os.mkdir(tool_type_dir)
         return tool_type_dir
     else : return tool_type_dir
+
 
 def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand):
     relevant_function = eval(f"{tool}.get_output_{tool}")
@@ -243,37 +247,46 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
     else:
         dir = create_directory_by_tool_type(site_dir, tool)
         print(f"start - end in run by tool type after relevant function {end_point - start_point} in {location_of_site}")
-        st_path= common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir, strand)
+        st_path, nucleotide = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir, strand)
 
         if st_path is None:
             return None, None, None
-    return start_point, end_point, st_path
+    return start_point, end_point, st_path, nucleotide
+
 
 def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
         sites_from_genome = json.load(sites_from_genome_dict)
         # return sites_from_genome
 
-# def process_line(line, genome_path, final_df_path, sites_counter):
-def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
+def process_line(line, genome_path, final_df_path):
+    check_bed_file_validity(line)
+    fields = line.strip().split('\t')
+    dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/clean_data/reut_up_0709/{chr}_{location_of_site}/"
+    # "/private10/Projects/Reut_Shelly/our_tool/data/reut_up3_0609/"
 
-    if not check_bed_file_validity(line):
-        no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
-        with open(no_segment_df_path, 'a', newline='') as csvfile2:
-            csvwriter2 = csv.writer(csvfile2)
-            csvwriter2.writerow(no_segment_row)
+# def process_line(line, genome_path, final_df_path, sites_counter):
+# def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
+
+#     if not check_bed_file_validity(line):
+#         no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
+#         with open(no_segment_df_path, 'a', newline='') as csvfile2:
+#             csvwriter2 = csv.writer(csvfile2)
+#             csvwriter2.writerow(no_segment_row)
 
     
-    fields = line.strip().split('\t')
-    dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
-    site_dir = f"{orig_site_dir}{chr}_{location_of_site}/"
+#     fields = line.strip().split('\t')
+#     dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
+#     site_dir = f"{orig_site_dir}{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
 
-    tools_list = ["default_tool", "ratio_based_tool", "max_distance_tool"]
+    tools_list = ["ratio_based_tool", "default_tool", "max_distance_tool"]
 
     for tool in tools_list:
-        start, end, st_path = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
+        start, end, st_path, nucleotide  = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
+       
         if start is None or end is None or st_path is None:
             no_segment_row = [int(location_of_site), tool, "st_path is None"]
             with open(no_segment_df_path, 'a', newline='') as csvfile2:
@@ -292,7 +305,7 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
             row = [
                 chr, int(converted_start_first_strand), int(converted_end_first_strand),
                 int(converted_start_second_strand), int(converted_end_second_strand),
-                strand, int(location_of_site), "exp", tool
+                strand, int(location_of_site), "exp", tool, nucleotide,
             ]
             
             with open(final_df_path, 'a', newline='') as csvfile:
@@ -305,8 +318,7 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
                 csvwriter2 = csv.writer(csvfile2)
                 csvwriter2.writerow(no_segment_row)
     
-
-def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method):
+def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method, nucleotide):
     # Create a new row as a DataFrame
     new_row = pd.DataFrame({
         'chr': [chr],
@@ -317,7 +329,8 @@ def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, st
         'strand': [strand],
         'editing_site_location': [editing_site_location],
         'exp_level': [exp_level],
-        'method': [method]
+        'method': [method],
+        'editing_base': [nucleotide]
     })
     
     # Append the new row to the existing DataFrame
@@ -369,7 +382,8 @@ def create_final_table_structure():
         'strand': [],
         'editing_site_location': [],
         'exp_level': [],
-        'method': []
+        'method': [],
+        'editing_base': []
     }
     df = pd.DataFrame(data)
     
@@ -395,7 +409,7 @@ def united_main():
     header_final_df = [
         'chr', 'start_first_strand', 'end_first_strand',
         'start_second_strand', 'end_second_strand', 
-        'strand', 'editing_site_location', 'exp_level', 'method'
+        'strand', 'editing_site_location', 'exp_level', 'method', 'editing_base'
     ]
     header_no_segment = ['editing_site_location', 'method', 'error']
     
