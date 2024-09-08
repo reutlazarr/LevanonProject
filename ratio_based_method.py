@@ -27,7 +27,7 @@ def get_output_ratio_based_tool(dis_list, location_of_site):
 
 
 # dislist is made of [site (not of interest), scope, chr]
-def min_distance_for_positive(dis_list):
+def min_distance_for_positive(dis_list):    
     # list of tuples containing scope and ratio of number of sites/ distance
     scope_ratio_num_of_editing_sites = []
     # for each scope, itearate the different editing sites
@@ -54,6 +54,7 @@ def min_distance_for_positive(dis_list):
         return None
     else:
         return scope_ratio_num_of_editing_sites
+
 
 def min_distance_for_negative(dis_list):
          # list of tuples cotaining scope and ratio of number of sites/ distance
@@ -130,13 +131,13 @@ def new_ratio_combinations(n_p_sorted_best_10, location_of_site):
                 chr = item1[3].split(": ")[1]
                 # the start, end points are affectecd by the scopes' negativity/ positivity
                 if scope1 > 0 and scope2 > 0:
-                    start = location_of_site
+                    start = location_of_site - 30
                     end = max(scope1, scope2) + location_of_site
                     # one scope contains the other scope
                     cur_num_site = max(int(item1[2].split(": ")[1]), int(item2[2].split(": ")[1]))
                 if scope1 < 0 and scope2 < 0:
                     start = min(scope1, scope2) + location_of_site
-                    end = location_of_site
+                    end = location_of_site + 30
                     cur_num_site = min(int(item1[2].split(": ")[1]), int(item2[2].split(": ")[1]))
                 # one of the item's scope is positive and the other one is negative
                 if scope1 < 0 and scope2 > 0:

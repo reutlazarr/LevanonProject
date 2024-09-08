@@ -9,11 +9,13 @@ def ReNumber_the_sequence(start, end, location_of_site, strand):
     new_start = 1
     new_end = end - start + 1
     delta = start - new_start  
-    new_location_of_site = location_of_site - start + 1 
+    new_location_of_site = location_of_site - start 
+
     if strand =="-":
-        new_location_of_site = new_end - new_location_of_site
+        new_location_of_site = new_end - new_location_of_site-1
     print("new location of site:" , new_location_of_site)
     return (new_start, new_end, new_location_of_site, delta)
+
 
 def parse_st_file(st_file, location_of_site):
     # Initialize default values
@@ -80,6 +82,7 @@ def convert_to_genomic_coords(start_first_strand, end_first_strand, start_second
     converted_start_second_strand = start_second_strand + delta
     converted_end_second_strand = end_second_strand + delta
     return converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand
+
 
 def extract_segment(start, end, st_path, location_of_site, strand):
     if start is None or end is None:
