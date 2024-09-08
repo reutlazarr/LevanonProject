@@ -17,11 +17,11 @@ def get_output_ratio_based_tool(dis_list, location_of_site):
     return start, end
 
 # dislist is made of [site (not of interest), scope, chr]
-def min_distance_for_positive(dis_list):
+def min_distance_for_positive(dis_list):    
     # list of tuples containing scope and ratio of number of sites/ distance
     scope_ratio_num_of_editing_sites = []
     # for each scope, itearate the different editing sites
-    for scope in range(0, 10000, 200):
+    for scope in range(0, 4000, 200):
         site_count = 0
         for _, site_dis_chr in enumerate(dis_list):
             # first is distance, sec is ratio, third is site, fourth is chr
@@ -40,11 +40,12 @@ def min_distance_for_positive(dis_list):
                     scope_ratio_num_of_editing_sites.append(["scope: " +str(scope), "ratio: " + str(ratio), "site: " + str(site_count), "chr: " + str(chr_of_specific_site)])
     return scope_ratio_num_of_editing_sites
 
+
 def min_distance_for_negative(dis_list):
          # list of tuples cotaining scope and ratio of number of sites/ distance
     scope_ratio_num_of_editing_sites = []
     # for each scope, itearate the different editing sites
-    for scope in range(0, -10000, -200):
+    for scope in range(0, -4000, -200):
         site_count = 0
         for _, site_dis_str in enumerate(dis_list):
             # first is distance, sec is ratio, third is 
@@ -86,13 +87,13 @@ def new_ratio_combinations(n_p_sorted_best_10, location_of_site):
                 chr = item1[3].split(": ")[1]
                 # the start, end points are affectecd by the scopes' negativity/ positivity
                 if scope1 > 0 and scope2 > 0:
-                    start = location_of_site
+                    start = location_of_site - 30
                     end = max(scope1, scope2) + location_of_site
                     # one scope contains the other scope
                     cur_num_site = max(int(item1[2].split(": ")[1]), int(item2[2].split(": ")[1]))
                 if scope1 < 0 and scope2 < 0:
                     start = min(scope1, scope2) + location_of_site
-                    end = location_of_site
+                    end = location_of_site + 30
                     cur_num_site = min(int(item1[2].split(": ")[1]), int(item2[2].split(": ")[1]))
                 # one of the item's scope is positive and the other one is negative
                 if scope1 < 0 and scope2 > 0:
