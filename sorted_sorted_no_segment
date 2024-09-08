@@ -1,0 +1,4 @@
+editing_site_location,method,error
+2282686,default_tool,st_path is None
+2282686,ratio_based_tool,st_path is None
+2282686,max_distance_tool,st_path is None
