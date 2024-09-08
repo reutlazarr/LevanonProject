@@ -258,12 +258,12 @@ def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
         sites_from_genome = json.load(sites_from_genome_dict)
         # return sites_from_genome
-
-def process_line(line, genome_path, final_df_path):
+# line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
+def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
     check_bed_file_validity(line)
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
-    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/clean_data/reut_up_0709/{chr}_{location_of_site}/"
+    orig_site_dir = f"/private10/Projects/Reut_Shelly/our_tool/clean_data/reut_up_0709/{chr}_{location_of_site}/"
     # "/private10/Projects/Reut_Shelly/our_tool/data/reut_up3_0609/"
 
 # def process_line(line, genome_path, final_df_path, sites_counter):
@@ -279,13 +279,13 @@ def process_line(line, genome_path, final_df_path):
 #     fields = line.strip().split('\t')
 #     dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
 #     site_dir = f"{orig_site_dir}{chr}_{location_of_site}/"
-    if not os.path.exists(site_dir):
-        os.mkdir(site_dir)
+    if not os.path.exists(orig_site_dir):
+        os.mkdir(orig_site_dir)
 
     tools_list = ["ratio_based_tool", "default_tool", "max_distance_tool"]
 
     for tool in tools_list:
-        start, end, st_path, nucleotide  = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
+        start, end, st_path, nucleotide  = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, orig_site_dir, strand)
        
         if start is None or end is None or st_path is None:
             no_segment_row = [int(location_of_site), tool, "st_path is None"]
