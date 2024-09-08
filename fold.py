@@ -149,7 +149,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     # Skip folding if the sequence is longer than 5500 bp
     if sequence_length > 5600:
         print(f"Skipping folding for {location_of_site} as sequence length {sequence_length} exceeds 5500 bp.")
-        return None
+        return None, None
 
     new_start, new_end, new_location_of_site, delta = post_fold.ReNumber_the_sequence(start, end, location_of_site, strand)
 
@@ -242,7 +242,7 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
     if (start_point == 0 and end_point == 0):
         # st_path = ""
         print(f"st_path is none since start point and end point == 0 in {location_of_site}")
-        return None, None, None
+        return None, None, None, None
     
     else:
         dir = create_directory_by_tool_type(site_dir, tool)
@@ -250,7 +250,7 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
         st_path, nucleotide = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir, strand)
 
         if st_path is None:
-            return None, None, None
+            return None, None, None, None
     return start_point, end_point, st_path, nucleotide
 
 
@@ -260,32 +260,24 @@ def open_json_file_for_reading(file):
         # return sites_from_genome
 # line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
 def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
-    check_bed_file_validity(line)
+    if not check_bed_file_validity(line):
+        no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
+        with open(no_segment_df_path, 'a', newline='') as csvfile2:
+            csvwriter2 = csv.writer(csvfile2)
+            csvwriter2.writerow(no_segment_row)
+
+
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
-    orig_site_dir = f"/private10/Projects/Reut_Shelly/our_tool/clean_data/reut_up_0709/{chr}_{location_of_site}/"
-    # "/private10/Projects/Reut_Shelly/our_tool/data/reut_up3_0609/"
+    site_dir = f"{orig_site_dir}{chr}_{location_of_site}/"
 
-# def process_line(line, genome_path, final_df_path, sites_counter):
-# def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
-
-#     if not check_bed_file_validity(line):
-#         no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
-#         with open(no_segment_df_path, 'a', newline='') as csvfile2:
-#             csvwriter2 = csv.writer(csvfile2)
-#             csvwriter2.writerow(no_segment_row)
-
-    
-#     fields = line.strip().split('\t')
-#     dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
-#     site_dir = f"{orig_site_dir}{chr}_{location_of_site}/"
-    if not os.path.exists(orig_site_dir):
-        os.mkdir(orig_site_dir)
+    if not os.path.exists(site_dir):
+        os.mkdir(site_dir)
 
     tools_list = ["ratio_based_tool", "default_tool", "max_distance_tool"]
 
     for tool in tools_list:
-        start, end, st_path, nucleotide  = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, orig_site_dir, strand)
+        start, end, st_path, nucleotide  = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
        
         if start is None or end is None or st_path is None:
             no_segment_row = [int(location_of_site), tool, "st_path is None"]
@@ -399,9 +391,9 @@ def create_final_table_structure():
     return df
 
 def united_main():
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/601_to_900.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites/sites_1_1000.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/601_900/"
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_1000/1-999/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
 
@@ -424,8 +416,11 @@ def united_main():
     with open(bed_file_path, 'r') as bed_file:
         lines = bed_file.readlines()
 
-    for line in lines:
-        process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
+    # for line in lines:
+    #     process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
+
+    with multiprocessing.Pool(processes=35) as pool:
+        pool.starmap(process_line, [(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir) for line in lines])
     
     sorted_final_df = sort_df(final_df_path, "sorted_final_df")
     sorted_no_segment_df = sort_df(no_segment_df_path, "sorted_no_segment")

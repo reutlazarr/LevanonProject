@@ -1,21 +1,21 @@
 def get_output_ratio_based_tool(dis_list, location_of_site):
     # edge case: our site of interest has no other sites in its vicinity, thus folding it is irrelevant
-    print(f"debug 0309: {dis_list}")
+    # print(f"debug 0309: {dis_list}")
     if len(dis_list) == 1:
         print("SITE OF INTEREST HAS NO SURROUNDING EDITING SITES")
         return 0,0
     # call the func based on best ratio
     # the output starts with scope
     min_positive = min_distance_for_positive(dis_list)
-    print(f"debug 0209: min_positive {min_positive}")
+    # print(f"debug 0209: min_positive {min_positive}")
     min_negative = min_distance_for_negative(dis_list)
-    print(f"debug 0209: min_negative {min_negative}")
+    # print(f"debug 0209: min_negative {min_negative}")
     # the editing site has neighbors but they are more than 10,000/-10000 bases away.
     if min_positive is None and min_negative is None:
         return 0,0
     else:
         best_ten = find_optimal_dis_in_scope_and_ratio(min_positive, min_negative)
-        print(f"debug 0209: best_ten {best_ten}")
+        # print(f"debug 0209: best_ten {best_ten}")
         # the output starts with "start"
         new_combinations = new_ratio_combinations(best_ten, location_of_site)
         # print(f"debug 0209: new_combinations {new_combinations}")
@@ -104,10 +104,10 @@ def find_optimal_dis_in_scope_and_ratio(scope_ratio_num_of_editing_sites_p, scop
 # create different combinations of optimal scopes
 # extract start, end
 def new_ratio_combinations(n_p_sorted_best_10, location_of_site):
-    print(f"debug 0209: n_p_sorted_best_10 {n_p_sorted_best_10}")
+    # print(f"debug 0209: n_p_sorted_best_10 {n_p_sorted_best_10}")
     combi_scopes_ratios_sites = []
     if len(n_p_sorted_best_10) == 1:
-        print(f"len(n_p): {len(n_p_sorted_best_10)}")
+        # print(f"len(n_p): {len(n_p_sorted_best_10)}")
         scope = int(n_p_sorted_best_10[0][0].split(': ')[1])
         if scope > 0:
             start = location_of_site - 30
@@ -179,11 +179,11 @@ def get_best_ratio(n_p_sorted_best_10, combi_scopes_ratios_sites, location_of_si
         end_best_from_best_10 = location_of_site + 30
     # compare ratio from the best combi and ratio from the best 10
     if float(best_from_combi[3].split(": ")[1]) >= float(best_from_best_10[1].split(": ")[1]):
-        print("return best combi")
+        # print("return best combi")
         return best_from_combi
     # if the ratio of best from best 10 is bigger
     else:
-        print("the ratio of best from best 10 is bigger")
+        # print("the ratio of best from best 10 is bigger")
         ratio = float(best_from_best_10[1].split(": ")[1])
         return ["start: " + str(start_best_from_best_10), "end: " + str(end_best_from_best_10), "scope: " + str(scope_best_from_best_10), "ratio: " + str(ratio), "site: " + str(site_best_from_best_10), "chr: " + str(chr_best_from_best_10)]
     # zohar's get_sequence
