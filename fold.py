@@ -37,13 +37,25 @@ def run_bpRNA(path_to_dbn_file, site_dir, st_path):
         print(f"Output .st file is empty. Something went wrong with bpRNA for file: {path_to_dbn_file}")
     return st_path
 
+# def create_bpRNA_path(path_to_dbn_file, site_dir):
+#     # create out file name
+#     out_f = path_to_dbn_file.split("/")[-1]
+#     # get rid of the dbn suffix
+#     out_f = remove_suffix(out_f, os.path.splitext(out_f)[1]) + ".st"
+#     st_path = site_dir + out_f
+#     return st_path
 
 def create_bpRNA_path(path_to_dbn_file, site_dir):
-    # create out file name
-    out_f = path_to_dbn_file.split("/")[-1]
-    # get rid of the dbn suffix
-    out_f = remove_suffix(out_f, os.path.splitext(out_f)[1]) + ".st"
-    st_path = site_dir + out_f
+    # Debug print statements
+    print(f"Processing file: {path_to_dbn_file}")
+    print(f"Saving to directory: {site_dir}")
+
+    # Extract the file name without extension
+    file_name = os.path.splitext(os.path.basename(path_to_dbn_file))[0]
+    st_path = os.path.join(site_dir, f"{file_name}.st")
+    
+    print(f"Generated .st path: {st_path}")
+    
     return st_path
 
 
@@ -52,11 +64,9 @@ def remove_suffix(input_string, suffix):
         return input_string[:-len(suffix)]
     return input_string
 
-
 def convert_dbn_to_ct(dbn_file, ct_file):
     path_to_sh_draw = "/private10/Projects/Reut_Shelly/our_tool/data/draw_RNA_structures/run_dot_to_ct.sh"
     subprocess.run([path_to_sh_draw, dbn_file, ct_file], capture_output=True, text=True)
-
 
 def check_bed_file_validity(line):
     new_line = line.split()
@@ -85,7 +95,6 @@ def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
     subprocess.run([path_to_script, fasta_seq_to_fold, path_to_mxfold2_result], capture_output=True, text=True)
     print("run completed")
     return path_to_mxfold2_result
-
 
 # create different kind of files
 # the shape file is now a default one 
@@ -125,7 +134,6 @@ def create_files(location_of_site, tool_type, tool_dir, new_location_of_site):
         print(f"Error in create_files: {e}")
         return None, None, None, None
 
-
 def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_site_position, score):
     shape_file_name = f'{location_of_site}_{tool_type}.shape'
     shape_file_path = os.path.join(tool_dir, shape_file_name)
@@ -139,7 +147,6 @@ def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_
         print(f"Error in create_shape_file_for_editing_site: {e}")
 
     return shape_file_path
-
 
 # this part is shared by the four different tools
 def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, tool_dir, strand):
@@ -166,9 +173,11 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     # add reverse complement  (-)
     if strand == "-":
         print("strand is minus!!")
-        seq_converted= blast.reverse_complement_rna(seq_converted)
+        seq_converted = blast.reverse_complement_rna(seq_converted)
         # print("seq converted is:", seq_converted)
-    
+    # Check if new_location_of_site is within the bounds of the sequence
+    if 0 <= new_location_of_site < len(seq_converted):
+        nucleotide = seq_converted[new_location_of_site]
     distance = end - start
     fasta_seq_to_fold = write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
@@ -191,7 +200,6 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     run_bpRNA(path_to_mxfold2_result, tool_dir, st_path)
     print(f"after bpRNA by {tool} in {location_of_site}")
     return st_path, nucleotide
-
 
 def write_to_fasta_file(location_of_site, sequence, chr, tool_type, site_dir, distance):
     sequence_path_name = f"{location_of_site}_{tool_type}.fa"
@@ -218,7 +226,6 @@ def convert_dna_to_formal_format(dna):
             new_dna += '\n'
     return new_dna
 
-
 # create directory for each tool
 def create_directory_by_tool_type(site_dir_path, tool_type):
     # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/site_of_interest_analysis/{chr}_{location_of_site}/"
@@ -230,7 +237,6 @@ def create_directory_by_tool_type(site_dir_path, tool_type):
         os.mkdir(tool_type_dir)
         return tool_type_dir
     else : return tool_type_dir
-
 
 def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand):
     relevant_function = eval(f"{tool}.get_output_{tool}")
@@ -253,7 +259,6 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
             return None, None, None, None
     return start_point, end_point, st_path, nucleotide
 
-
 def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
         sites_from_genome = json.load(sites_from_genome_dict)
@@ -265,7 +270,6 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
         with open(no_segment_df_path, 'a', newline='') as csvfile2:
             csvwriter2 = csv.writer(csvfile2)
             csvwriter2.writerow(no_segment_row)
-
 
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
@@ -391,9 +395,9 @@ def create_final_table_structure():
     return df
 
 def united_main():
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites/sites_1_1000.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites/sites_3001_4000.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_1000/1-999/"
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_1000/3001-4000/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
 
@@ -428,5 +432,3 @@ def united_main():
 
 if __name__ == "__main__":
     united_main()
-
-
