@@ -1,6 +1,6 @@
 import os
 
-def split_bed_file(bed_file_path, output_dir, lines_per_file=1000):
+def split_bed_file(bed_file_path, output_dir, lines_per_file=200):
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
@@ -31,5 +31,5 @@ def split_bed_file(bed_file_path, output_dir, lines_per_file=1000):
 
 # Example usage:
 bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/all_sites_converted.bed"
-output_dir = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites/"
+output_dir = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites_to_200/"
 split_bed_file(bed_file_path, output_dir)
