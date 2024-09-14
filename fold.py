@@ -396,6 +396,7 @@ def create_final_table_structure():
     return df
 
 def united_main():
+<<<<<<< HEAD
     bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites/sites_100001_101000.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_1000/100001_101000"

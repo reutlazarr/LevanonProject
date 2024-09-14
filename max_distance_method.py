@@ -23,14 +23,6 @@ def get_output_max_distance_tool(dis_list, location_of_site):
 
     return start, end
 
-    # # chr = best_by_max_dis[4].split(": ")[1]
-    # start = int(best_by_max_dis[0].split(": ")[1])
-    # end = int(best_by_max_dis[1].split(": ")[1])
-    # # check if the number of bp exceeds 10000:
-    # # if (abs(start - end)) > 10000:
-    # #     start = location_of_site - 5000
-    # #     end = location_of_site + 5000
-    # return start, end
 
 # chr added
 # [loc, dis, chr]]
