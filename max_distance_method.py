@@ -70,7 +70,7 @@ def max_distance(dis_list, location_of_site):
     scope = end - start
     chr = str(max_tuple[2])
     # site == num of sites in the current scope
-    if int(end)- int(start) < 9999:
+    if int(end)- int(start) < 5600:
         return ["start: " + str(start), "end: " + str(end), "scope: " + str(scope), "site: " + str(site), "chr: " + str(chr)]
     else:
         return None

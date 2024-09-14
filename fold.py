@@ -78,7 +78,6 @@ def check_bed_file_validity(line):
     return True
 
 # call out four functions and send their output to the folding program
-
 # run the folding program
 def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
     print("run mx")
@@ -163,9 +162,6 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     #we should check this part! with it and without it:
     #seq_converted = convert_dna_to_formal_format(unconverted_seq)
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
-    print("strand is", strand)
-    print("sequence: " , seq_converted)
-
     # print("first", seq_converted)
     # add reverse complement  (-)
     if strand == "-":
@@ -173,7 +169,6 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
         seq_converted= blast.reverse_complement_rna(seq_converted)
         # print("seq converted is:", seq_converted)
     
-    # print("second", seq_converted)
     distance = end - start
     fasta_seq_to_fold = write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
@@ -264,19 +259,26 @@ def open_json_file_for_reading(file):
         sites_from_genome = json.load(sites_from_genome_dict)
         # return sites_from_genome
 
-# def process_line(line, genome_path, final_df_path, sites_counter):
-def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
+def process_line(line, genome_path, final_df_path):
+    check_bed_file_validity(line)
+    fields = line.strip().split('\t')
+    dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
+    site_dir = f"/private10/Projects/Reut_Shelly/our_tool/clean_data/reut_up_0709/{chr}_{location_of_site}/"
+    # "/private10/Projects/Reut_Shelly/our_tool/data/reut_up3_0609/"
 
-    if not check_bed_file_validity(line):
-        no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
-        with open(no_segment_df_path, 'a', newline='') as csvfile2:
-            csvwriter2 = csv.writer(csvfile2)
-            csvwriter2.writerow(no_segment_row)
+# def process_line(line, genome_path, final_df_path, sites_counter):
+# def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
+
+#     if not check_bed_file_validity(line):
+#         no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
+#         with open(no_segment_df_path, 'a', newline='') as csvfile2:
+#             csvwriter2 = csv.writer(csvfile2)
+#             csvwriter2.writerow(no_segment_row)
 
     
-    fields = line.strip().split('\t')
-    dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
-    site_dir = f"{orig_site_dir}{chr}_{location_of_site}/"
+#     fields = line.strip().split('\t')
+#     dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
+#     site_dir = f"{orig_site_dir}{chr}_{location_of_site}/"
     if not os.path.exists(site_dir):
         os.mkdir(site_dir)
 
@@ -284,6 +286,7 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
 
     for tool in tools_list:
         start, end, st_path, nucleotide  = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
+       
         if start is None or end is None or st_path is None:
             no_segment_row = [int(location_of_site), tool, "st_path is None"]
             with open(no_segment_df_path, 'a', newline='') as csvfile2:
@@ -393,9 +396,7 @@ def create_final_table_structure():
     return df
 
 def united_main():
-    # Create the DataFrame
-    final_df = create_final_table_structure()
-    bed_file_path ="/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/all_sites_converted.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/601_to_900.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
     orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/601_900/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
