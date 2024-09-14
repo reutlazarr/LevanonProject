@@ -395,9 +395,9 @@ def create_final_table_structure():
     return df
 
 def united_main():
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites/sites_4001_5000.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites_to_500/sites_86001_86500.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_1000/4001-5000/"
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/86001-86500/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
 
@@ -423,7 +423,7 @@ def united_main():
     # for line in lines:
     #     process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
 
-    with multiprocessing.Pool(processes=35) as pool:
+    with multiprocessing.Pool(processes=25) as pool:
         pool.starmap(process_line, [(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir) for line in lines])
     
     sorted_final_df = sort_df(final_df_path, "sorted_final_df")
