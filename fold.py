@@ -395,9 +395,11 @@ def create_final_table_structure():
     return df
 
 def united_main():
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites_to_500/sites_86001_86500.bed"
+    # bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites_to_500/sites_89501_90000.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/unprocessed_bed_files/"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/86001-86500/"
+    # orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/89501-90000/"
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500_1609/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
 

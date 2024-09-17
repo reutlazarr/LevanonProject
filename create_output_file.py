@@ -10,7 +10,7 @@ def run_fold_script(bed_file_path, orig_site_dir, bed_file_name):
         os.makedirs(orig_site_dir, exist_ok=True)
         
         # Prepare the command to run the fold.py script
-        command = f"nohup python fold.py {bed_file_path} {orig_site_dir} > {output_file} 2>&1 &"
+        command = f"python /home/alu/aluguest/Reut_Shelly/vscode/code_shelly/LevanonProject/fold.py {bed_file_path} {orig_site_dir} > {output_file} 2>&1"
         
         # Run the command
         subprocess.run(command, shell=True, check=True)
@@ -36,6 +36,6 @@ def run_on_directory(directory_path, orig_site_parent_dir):
         run_fold_script(bed_file_path, orig_site_dir, bed_file_name)
 
 # Example usage
-directory_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites_to_200/"  # Directory containing your BED files
-orig_site_parent_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_200/"  # Parent directory for each orig_site_dir
+directory_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/unprocessed_bed_files/"  # Directory containing your BED files
+orig_site_parent_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500_1609/" # Parent directory for each orig_site_dir
 run_on_directory(directory_path, orig_site_parent_dir)
