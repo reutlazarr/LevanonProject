@@ -2,6 +2,7 @@ import os
 from fold import united_main  # Import the function from fold.py
 
 def run_fold_script(bed_file_path, orig_site_dir, bed_file_name):
+    # efi
     try:
         # Ensure the orig_site_dir exists (create if necessary)
         os.makedirs(orig_site_dir, exist_ok=True)
