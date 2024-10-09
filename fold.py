@@ -291,6 +291,7 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
                 continue
         
         converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
+        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
         
         if (converted_start_first_strand is not None and 
             converted_end_first_strand is not None and 
@@ -308,11 +309,7 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
                 csvwriter = csv.writer(csvfile)
                 csvwriter.writerow(row)
             print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
-        else:
-            no_segment_row = [int(location_of_site), tool, "one of the converted start/end is None"]
-            with open(no_segment_df_path, 'a', newline='') as csvfile2:
-                csvwriter2 = csv.writer(csvfile2)
-                csvwriter2.writerow(no_segment_row)
+
     
 def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method, nucleotide):
     # Create a new row as a DataFrame
@@ -395,13 +392,12 @@ def create_final_table_structure():
     return df
 
 def united_main():
-    # bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites_to_500/sites_89501_90000.bed"
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/unprocessed_bed_files/"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/969-40000.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    # orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/89501-90000/"
-    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500_1609/"
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/969-40000_no_multi/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
+    #nohup python fold.py > "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/105501_106000/105501-106000_output.txt" &
 
     # Write the header of the CSV files
     header_final_df = [
@@ -422,15 +418,16 @@ def united_main():
     with open(bed_file_path, 'r') as bed_file:
         lines = bed_file.readlines()
 
-    # for line in lines:
-    #     process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
+    for line in lines:
+        process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
 
-    with multiprocessing.Pool(processes=25) as pool:
-        pool.starmap(process_line, [(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir) for line in lines])
+    # with multiprocessing.Pool(processes=25) as pool:
+    #     pool.starmap(process_line, [(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir) for line in lines])
     
     sorted_final_df = sort_df(final_df_path, "sorted_final_df")
     sorted_no_segment_df = sort_df(no_segment_df_path, "sorted_no_segment")
     print("EVERYTHING IS DONE")
+
 
 if __name__ == "__main__":
     united_main()
