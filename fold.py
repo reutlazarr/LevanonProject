@@ -264,12 +264,14 @@ def open_json_file_for_reading(file):
         sites_from_genome = json.load(sites_from_genome_dict)
         # return sites_from_genome
 # line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
+
 def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
     if not check_bed_file_validity(line):
         no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
         with open(no_segment_df_path, 'a', newline='') as csvfile2:
             csvwriter2 = csv.writer(csvfile2)
             csvwriter2.writerow(no_segment_row)
+            return
 
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
@@ -291,7 +293,6 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
                 continue
         
         converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
-        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
         
         if (converted_start_first_strand is not None and 
             converted_end_first_strand is not None and 
@@ -309,27 +310,33 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
                 csvwriter = csv.writer(csvfile)
                 csvwriter.writerow(row)
             print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
+        else:
+            # added 0910
+            no_segment_row = [int(location_of_site), tool, "one of the sites conversions to DNA is None"]
+            with open(no_segment_df_path, 'a', newline='') as csvfile2:
+                csvwriter2 = csv.writer(csvfile2)
+                csvwriter2.writerow(no_segment_row)
 
     
-def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method, nucleotide):
-    # Create a new row as a DataFrame
-    new_row = pd.DataFrame({
-        'chr': [chr],
-        'start_first_strand': [start_first_strand],
-        'end_first_strand': [end_first_strand],
-        'start_second_strand': [start_second_strand],
-        'end_second_strand': [end_second_strand],
-        'strand': [strand],
-        'editing_site_location': [editing_site_location],
-        'exp_level': [exp_level],
-        'method': [method],
-        'editing_base': [nucleotide]
-    })
+# def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method, nucleotide):
+#     # Create a new row as a DataFrame
+#     new_row = pd.DataFrame({
+#         'chr': [chr],
+#         'start_first_strand': [start_first_strand],
+#         'end_first_strand': [end_first_strand],
+#         'start_second_strand': [start_second_strand],
+#         'end_second_strand': [end_second_strand],
+#         'strand': [strand],
+#         'editing_site_location': [editing_site_location],
+#         'exp_level': [exp_level],
+#         'method': [method],
+#         'editing_base': [nucleotide]
+#     })
     
-    # Append the new row to the existing DataFrame
-    final_df = pd.concat([final_df, new_row], ignore_index=True)
+#     # Append the new row to the existing DataFrame
+#     final_df = pd.concat([final_df, new_row], ignore_index=True)
     
-    return final_df
+#     return final_df
 
 def sort_df(orig_path, file_name):
     # Read the CSV file into a DataFrame
