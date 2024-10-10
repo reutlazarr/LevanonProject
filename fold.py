@@ -111,6 +111,7 @@ def create_files(location_of_site, tool_type, tool_dir, new_location_of_site):
         try:
             with open(shape_file_path, 'w') as shape_file:
                 # Write only the editing site position with the score
+                # 0.5 is the color of the headline
                 shape_file.write(f"{new_location_of_site} 0.5\n")
             print(f"Shape file created for editing site: {shape_file_path}")
         except Exception as e:
@@ -157,7 +158,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     if sequence_length > 5600:
         print(f"Skipping folding for {location_of_site} as sequence length {sequence_length} exceeds 5500 bp.")
         return None, None
-
+    # still genomics rather than RNA
     new_start, new_end, new_location_of_site, delta = post_fold.ReNumber_the_sequence(start, end, location_of_site, strand)
 
     # Create empty files
@@ -176,8 +177,11 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
         seq_converted = blast.reverse_complement_rna(seq_converted)
         # print("seq converted is:", seq_converted)
     # Check if new_location_of_site is within the bounds of the sequence
-    if 0 <= new_location_of_site < len(seq_converted):
+    if 1 <= new_location_of_site < len(seq_converted):
         nucleotide = seq_converted[new_location_of_site]
+    else:
+        print("location of site is not in the seq converted")
+        return None, None
     distance = end - start
     fasta_seq_to_fold = write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
@@ -255,7 +259,7 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
         print(f"start - end in run by tool type after relevant function {end_point - start_point} in {location_of_site}")
         st_path, nucleotide = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir, strand)
 
-        if st_path is None:
+        if st_path is None or nucleotide is None:
             return None, None, None, None
     return start_point, end_point, st_path, nucleotide
 
@@ -264,15 +268,17 @@ def open_json_file_for_reading(file):
         sites_from_genome = json.load(sites_from_genome_dict)
         # return sites_from_genome
 # line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
+
 def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
     if not check_bed_file_validity(line):
         no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
         with open(no_segment_df_path, 'a', newline='') as csvfile2:
             csvwriter2 = csv.writer(csvfile2)
             csvwriter2.writerow(no_segment_row)
+            return
 
     fields = line.strip().split('\t')
-    dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
+    dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
     site_dir = f"{orig_site_dir}{chr}_{location_of_site}/"
 
     if not os.path.exists(site_dir):
@@ -283,8 +289,8 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
     for tool in tools_list:
         start, end, st_path, nucleotide  = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
        
-        if start is None or end is None or st_path is None:
-            no_segment_row = [int(location_of_site), tool, "st_path is None"]
+        if start is None or end is None or st_path is None or nucleotide is None:
+            no_segment_row = [int(location_of_site), tool, "st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"]
             with open(no_segment_df_path, 'a', newline='') as csvfile2:
                 csvwriter2 = csv.writer(csvfile2)
                 csvwriter2.writerow(no_segment_row)
@@ -309,30 +315,32 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
                 csvwriter.writerow(row)
             print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
         else:
-            no_segment_row = [int(location_of_site), tool, "one of the converted start/end is None"]
+            # added 0910
+            no_segment_row = [int(location_of_site), tool, "one of the sites conversions to DNA is None"]
             with open(no_segment_df_path, 'a', newline='') as csvfile2:
                 csvwriter2 = csv.writer(csvfile2)
                 csvwriter2.writerow(no_segment_row)
+
     
-def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method, nucleotide):
-    # Create a new row as a DataFrame
-    new_row = pd.DataFrame({
-        'chr': [chr],
-        'start_first_strand': [start_first_strand],
-        'end_first_strand': [end_first_strand],
-        'start_second_strand': [start_second_strand],
-        'end_second_strand': [end_second_strand],
-        'strand': [strand],
-        'editing_site_location': [editing_site_location],
-        'exp_level': [exp_level],
-        'method': [method],
-        'editing_base': [nucleotide]
-    })
+# def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method, nucleotide):
+#     # Create a new row as a DataFrame
+#     new_row = pd.DataFrame({
+#         'chr': [chr],
+#         'start_first_strand': [start_first_strand],
+#         'end_first_strand': [end_first_strand],
+#         'start_second_strand': [start_second_strand],
+#         'end_second_strand': [end_second_strand],
+#         'strand': [strand],
+#         'editing_site_location': [editing_site_location],
+#         'exp_level': [exp_level],
+#         'method': [method],
+#         'editing_base': [nucleotide]
+#     })
     
-    # Append the new row to the existing DataFrame
-    final_df = pd.concat([final_df, new_row], ignore_index=True)
+#     # Append the new row to the existing DataFrame
+#     final_df = pd.concat([final_df, new_row], ignore_index=True)
     
-    return final_df
+#     return final_df
 
 def sort_df(orig_path, file_name):
     # Read the CSV file into a DataFrame
@@ -395,11 +403,12 @@ def create_final_table_structure():
     return df
 
 def united_main():
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/split_sites_to_500/sites_86001_86500.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/969-40000.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/86001-86500/"
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/969-40000_no_multi/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
+    #nohup python fold.py > "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/105501_106000/105501-106000_output.txt" &
 
     # Write the header of the CSV files
     header_final_df = [
@@ -420,15 +429,16 @@ def united_main():
     with open(bed_file_path, 'r') as bed_file:
         lines = bed_file.readlines()
 
-    # for line in lines:
-    #     process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
+    for line in lines:
+        process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir)
 
-    with multiprocessing.Pool(processes=25) as pool:
-        pool.starmap(process_line, [(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir) for line in lines])
+    # with multiprocessing.Pool(processes=25) as pool:
+    #     pool.starmap(process_line, [(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir) for line in lines])
     
     sorted_final_df = sort_df(final_df_path, "sorted_final_df")
     sorted_no_segment_df = sort_df(no_segment_df_path, "sorted_no_segment")
     print("EVERYTHING IS DONE")
+
 
 if __name__ == "__main__":
     united_main()

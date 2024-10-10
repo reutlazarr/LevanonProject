@@ -9,10 +9,10 @@ def ReNumber_the_sequence(start, end, location_of_site, strand):
     new_start = 1
     new_end = end - start + 1
     delta = start - new_start  
-    new_location_of_site = location_of_site - start 
+    new_location_of_site = location_of_site - delta 
 
-    if strand =="-":
-        new_location_of_site = new_end - new_location_of_site-1
+    if strand == "-":
+        new_location_of_site = new_end - new_location_of_site - 1
     print("new location of site:" , new_location_of_site)
     return (new_start, new_end, new_location_of_site, delta)
 
