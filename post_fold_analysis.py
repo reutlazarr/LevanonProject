@@ -4,11 +4,16 @@ import pandas as pd
 
 # the function will take the original numbering and change it to match the new numbering of the coloring software
 def ReNumber_the_sequence(start, end, location_of_site, strand):
+    # start = 3000, end = 4000, loc = 3200
+    # new_start = 1, end = 1001, loc = 201
+    # delta = start - new_start = 3000 - 1 = 2999
+    # new_loc = 3200 - 2999 = 201 = delta
+    # the correct one : new_loc = loc - start = 3200 - 300 = 200
     start = round(start)
     end = round(end)
     new_start = 1
     new_end = end - start + 1
-    delta = start - new_start  
+    delta = start
     new_location_of_site = location_of_site - delta 
 
     if strand == "-":
@@ -17,7 +22,7 @@ def ReNumber_the_sequence(start, end, location_of_site, strand):
     return (new_start, new_end, new_location_of_site, delta)
 
 
-def parse_st_file(st_file, location_of_site):
+def parse_st_file(st_file, new_location_of_site):
     # Initialize default values
     seqs_of_segment = "default_seqs"
     segment = "default_segment"
@@ -58,9 +63,14 @@ def parse_st_file(st_file, location_of_site):
                 "end": int(range2.split(".")[-1]),
             }
             # Check if the editing site is in that segment
-            if (range1["start"] <= location_of_site + 1 <= range1["end"]) or (
-                range2["start"] <= location_of_site + 1 <= range2["end"]
+            print(f'range1["start"] {range1["start"]}')
+            print(f'range1["end"] {range1["end"]}')
+            print(f'range2["start"] {range2["start"]}')
+            print(f'range2["end"] {range2["end"]}')
+            if (range1["start"] <= new_location_of_site <= range1["end"]) or (
+                range2["start"] <= new_location_of_site <= range2["end"]
             ):
+                print("THE CONDITION CHECKING IF LOCATION IN IN THE SEGMENT")
                 # Create DataFrame for the requested segment
                 start_first_strand = range1["start"]
                 end_first_strand = range1["end"]
@@ -102,4 +112,9 @@ def extract_segment(start, end, st_path, location_of_site, strand):
         return None, None, None, None
     
     print("coordinates are converted to genomics successfully")
-    return converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand
+    if (converted_start_first_strand <= location_of_site <= converted_end_first_strand) or (converted_start_second_strand <= location_of_site <= converted_end_second_strand):
+        print ("loc in segment in extract_segment")
+        return converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand
+    else:
+        print("loc NOT in segment in extract_segment")
+        return None, None, None, None
