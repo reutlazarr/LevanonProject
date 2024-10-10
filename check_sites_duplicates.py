@@ -5,7 +5,7 @@ def check_duplicate_combinations(csv_file_path):
     df = pd.read_csv(csv_file_path)
 
     # Create a new DataFrame with relevant columns
-    combinations = df[['editing_site_location', 'method']]
+    combinations = df[['editing_site_location', 'method', 'chr', 'strand']]
 
     # Count duplicates
     duplicates = combinations.value_counts()
@@ -15,10 +15,10 @@ def check_duplicate_combinations(csv_file_path):
 
     # Print the results
     if not duplicate_combinations.empty:
-        print("Duplicate combinations of editing_site_location and method:")
+        print("Duplicate combinations of method, chr, strand and editing_site_location:")
         print(duplicate_combinations)
     else:
         print("No duplicate combinations found.")
 
 # Example usage
-check_duplicate_combinations("/private10/Projects/Reut_Shelly/our_tool/data/969-40000_no_multi/final_df.csv")
+check_duplicate_combinations("/private10/Projects/Reut_Shelly/our_tool/data/1-969_to_use/final_df.csv")
