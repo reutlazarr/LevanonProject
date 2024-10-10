@@ -111,6 +111,7 @@ def create_files(location_of_site, tool_type, tool_dir, new_location_of_site):
         try:
             with open(shape_file_path, 'w') as shape_file:
                 # Write only the editing site position with the score
+                # 0.5 is the color of the headline
                 shape_file.write(f"{new_location_of_site} 0.5\n")
             print(f"Shape file created for editing site: {shape_file_path}")
         except Exception as e:
@@ -157,7 +158,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     if sequence_length > 5600:
         print(f"Skipping folding for {location_of_site} as sequence length {sequence_length} exceeds 5500 bp.")
         return None, None
-
+    # still genomics rather than RNA
     new_start, new_end, new_location_of_site, delta = post_fold.ReNumber_the_sequence(start, end, location_of_site, strand)
 
     # Create empty files
@@ -176,8 +177,11 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
         seq_converted = blast.reverse_complement_rna(seq_converted)
         # print("seq converted is:", seq_converted)
     # Check if new_location_of_site is within the bounds of the sequence
-    if 0 <= new_location_of_site < len(seq_converted):
+    if 1 <= new_location_of_site < len(seq_converted):
         nucleotide = seq_converted[new_location_of_site]
+    else:
+        print("location of site is not in the seq converted")
+        return None, None
     distance = end - start
     fasta_seq_to_fold = write_to_fasta_file(location_of_site, seq_converted, chr, tool, tool_dir, distance) 
     # convert to dbn file
@@ -255,7 +259,7 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
         print(f"start - end in run by tool type after relevant function {end_point - start_point} in {location_of_site}")
         st_path, nucleotide = common_part_of_tool(chr, start_point, end_point, location_of_site, genome_path, tool, dir, strand)
 
-        if st_path is None:
+        if st_path is None or nucleotide is None:
             return None, None, None, None
     return start_point, end_point, st_path, nucleotide
 
@@ -274,7 +278,7 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
             return
 
     fields = line.strip().split('\t')
-    dis_list, location_of_site, chr, strand= l_dis.pipline(fields)
+    dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
     site_dir = f"{orig_site_dir}{chr}_{location_of_site}/"
 
     if not os.path.exists(site_dir):
@@ -285,8 +289,8 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
     for tool in tools_list:
         start, end, st_path, nucleotide  = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
        
-        if start is None or end is None or st_path is None:
-            no_segment_row = [int(location_of_site), tool, "st_path is None"]
+        if start is None or end is None or st_path is None or nucleotide is None:
+            no_segment_row = [int(location_of_site), tool, "st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"]
             with open(no_segment_df_path, 'a', newline='') as csvfile2:
                 csvwriter2 = csv.writer(csvfile2)
                 csvwriter2.writerow(no_segment_row)
