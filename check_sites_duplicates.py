@@ -21,4 +21,4 @@ def check_duplicate_combinations(csv_file_path):
         print("No duplicate combinations found.")
 
 # Example usage
-check_duplicate_combinations("/private10/Projects/Reut_Shelly/our_tool/data/1-969_to_use/final_df.csv")
+check_duplicate_combinations("/private10/Projects/Reut_Shelly/our_tool/data/40001-80000_no_multi/final_df.csv")

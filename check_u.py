@@ -20,4 +20,4 @@ def check_sites_in_bed(csv_file_path, bed_file_path, csv_site_column, bed_site_c
             print(f"Site {site} appears {site_count} times in column {bed_site_column}.")
 
 # Example usage:
-check_sites_in_bed("/private10/Projects/Reut_Shelly/our_tool/data/969-40000_no_multi/final_df.csv", "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/all_sites_converted.bed", "editing_site_location", 2)
+check_sites_in_bed("/private10/Projects/Reut_Shelly/our_tool/data/40001-80000_no_multi/final_df.csv", "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/all_sites_converted.bed", "editing_site_location", 2)
