@@ -95,10 +95,10 @@ def convert_to_genomic_coords(start_first_strand, end_first_strand, start_second
         converted_start_second_strand = start_second_strand + delta
         converted_end_second_strand = end_second_strand + delta
     elif strand == "-":
-        converted_start_first_strand = delta - start_first_strand
-        converted_end_first_strand = delta - end_first_strand
-        converted_start_second_strand = delta - start_second_strand
-        converted_end_second_strand = delta - end_second_strand
+        converted_start_first_strand = delta - end_first_strand
+        converted_end_first_strand = delta - start_first_strand
+        converted_start_second_strand = delta - end_second_strand
+        converted_end_second_strand = delta - start_second_strand
     else:
         raise ValueError(f"Invalid strand value: {strand}")
 
@@ -131,7 +131,7 @@ def extract_segment(start, end, st_path, location_of_site, strand):
     else:
         print("loc is NOT IN segment right after parse_st_file (new_location_of_site)")
     # def convert_to_genomic_coords(start_first_strand, end_first_strand, start_second_strand, end_second_strand, delta):
-    result = convert_to_genomic_coords(start_first_strand, end_first_strand, start_second_strand, end_second_strand, delta)
+    result = convert_to_genomic_coords(start_first_strand, end_first_strand, start_second_strand, end_second_strand, delta, strand)
     if result is not None:
         converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = result
         print(f"@@ strands after convert_to_genomics {converted_start_first_strand}, {converted_end_first_strand}, {converted_start_second_strand}, {converted_end_second_strand}")
