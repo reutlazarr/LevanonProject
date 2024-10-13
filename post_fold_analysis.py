@@ -98,14 +98,26 @@ def extract_segment(start, end, st_path, location_of_site, strand):
     if start is None or end is None:
         print("Error: Start or end is None, skipping segment extraction.")
         return None, None, None, None
+    print(f"@@ before renumber {start}, {end}, {location_of_site}")
     new_start, new_end, new_location_of_site, delta = ReNumber_the_sequence(start, end, location_of_site, strand)
-    print(f"After renumber the seq:  the new start is : {new_start} ,the new end is: {new_end} ,the new location of site is: {new_location_of_site}")
+    print(f"After renumber the seq:  the new start is : {new_start} ,the new end is: {new_end} ,the new location of site is: {new_location_of_site} delta: {delta}" )
     # coords of the location of site's segment
+    
     start_first_strand, end_first_strand, start_second_strand, end_second_strand = parse_st_file(st_path, new_location_of_site)
+    print(f"@@ strands after psrse_st_file {start_first_strand}, {end_first_strand}, {start_second_strand}, {end_second_strand}")
+    if start_first_strand <= new_location_of_site <= end_first_strand or start_second_strand <= new_location_of_site <= end_second_strand:
+        print("loc is IN segment right after parse_st_file")
+    else:
+        print("loc is NOT IN segment right after parse_st_file")
     if start_first_strand is None or end_first_strand is None or start_second_strand is None or end_second_strand is None:
         print("Error: parse_st_file fails since the editing site is not in a segment")
         return None, None, None, None
     converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = convert_to_genomic_coords(start_first_strand, end_first_strand, start_second_strand, end_second_strand, delta)
+    print(f"@@ strands after convert_to_genomics {converted_start_first_strand}, {converted_end_first_strand}, {converted_start_second_strand}, {converted_end_second_strand}")
+    if start_first_strand <= location_of_site <= end_first_strand or start_second_strand <= location_of_site <= end_second_strand:
+        print("loc is IN segment right after convert_to_genomics_coords")
+    else:
+        print("loc is NOT IN segment right after convert_to_genomics_coords")
     # Handle the case where segments were not found
     if converted_start_first_strand is None or converted_end_first_strand is None or converted_start_second_strand is None or converted_end_second_strand is None:
         print("Error: conversion to genomic coords failed")
