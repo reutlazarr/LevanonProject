@@ -160,7 +160,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
         return None, None
     # still genomics rather than RNA
     new_start, new_end, new_location_of_site, delta = post_fold.ReNumber_the_sequence(start, end, location_of_site, strand)
-
+    print(f"DELTA in common part of tool: {delta}")
     # Create empty files
     ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool, tool_dir, new_location_of_site)
     gr = genome_reader(genome_path)
@@ -296,13 +296,9 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
                 csvwriter2.writerow(no_segment_row)
                 continue
         
-        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
-        
-        if (converted_start_first_strand is not None and 
-            converted_end_first_strand is not None and 
-            converted_start_second_strand is not None and 
-            converted_end_second_strand is not None):
-            
+        result = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
+        if result is not None:
+            converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand)     
             # Prepare the row to write
             row = [
                 chr, int(converted_start_first_strand), int(converted_end_first_strand),
@@ -403,9 +399,9 @@ def create_final_table_structure():
     return df
 
 def united_main():
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/around_980.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/positive_sample.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/around_980_no_multi/"
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/around_980_no_multi_3/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
     #nohup python fold.py > "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/105501_106000/105501-106000_output.txt" &
