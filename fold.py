@@ -37,13 +37,6 @@ def run_bpRNA(path_to_dbn_file, site_dir, st_path):
         print(f"Output .st file is empty. Something went wrong with bpRNA for file: {path_to_dbn_file}")
     return st_path
 
-# def create_bpRNA_path(path_to_dbn_file, site_dir):
-#     # create out file name
-#     out_f = path_to_dbn_file.split("/")[-1]
-#     # get rid of the dbn suffix
-#     out_f = remove_suffix(out_f, os.path.splitext(out_f)[1]) + ".st"
-#     st_path = site_dir + out_f
-#     return st_path
 
 def create_bpRNA_path(path_to_dbn_file, site_dir):
     # Debug print statements
@@ -271,7 +264,7 @@ def open_json_file_for_reading(file):
 
 def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
     if not check_bed_file_validity(line):
-        no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
+        no_segment_row = [int(location_of_site), tool, f"Invalid BED file line: {line}"]
         with open(no_segment_df_path, 'a', newline='') as csvfile2:
             csvwriter2 = csv.writer(csvfile2)
             csvwriter2.writerow(no_segment_row)
@@ -298,56 +291,30 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
 
         # Extract the genomic segment
         result = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
-        if result is not None:
-            converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = result
-            
-            # Check if any of the coordinates are None
-            if None in result:
-                no_segment_row = [int(location_of_site), tool, "one of the site's conversions to DNA is None"]
-                with open(no_segment_df_path, 'a', newline='') as csvfile2:
-                    csvwriter2 = csv.writer(csvfile2)
-                    csvwriter2.writerow(no_segment_row)
-                continue  # Skip to the next tool if any coordinates are invalid
 
-            # Prepare the row to write
-            row = [
-                chr, int(converted_start_first_strand), int(converted_end_first_strand),
-                int(converted_start_second_strand), int(converted_end_second_strand),
-                strand, int(location_of_site), "exp", tool, nucleotide,
-            ]
-
-            with open(final_df_path, 'a', newline='') as csvfile:
-                csvwriter = csv.writer(csvfile)
-                csvwriter.writerow(row)
-            print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
-        else:
+        if result is None:
             # If the result is None, append a failure to no_segment_df
             no_segment_row = [int(location_of_site), tool, "segment extraction failed"]
             with open(no_segment_df_path, 'a', newline='') as csvfile2:
                 csvwriter2 = csv.writer(csvfile2)
                 csvwriter2.writerow(no_segment_row)
+            continue
 
+        # Unpack the result, since we know they are either all valid or all None
+        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = result
 
-    
-# def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method, nucleotide):
-#     # Create a new row as a DataFrame
-#     new_row = pd.DataFrame({
-#         'chr': [chr],
-#         'start_first_strand': [start_first_strand],
-#         'end_first_strand': [end_first_strand],
-#         'start_second_strand': [start_second_strand],
-#         'end_second_strand': [end_second_strand],
-#         'strand': [strand],
-#         'editing_site_location': [editing_site_location],
-#         'exp_level': [exp_level],
-#         'method': [method],
-#         'editing_base': [nucleotide]
-#     })
-    
-#     # Append the new row to the existing DataFrame
-#     final_df = pd.concat([final_df, new_row], ignore_index=True)
-    
-#     return final_df
+        # Prepare the row to write
+        row = [
+            chr, int(converted_start_first_strand), int(converted_end_first_strand),
+            int(converted_start_second_strand), int(converted_end_second_strand),
+            strand, int(location_of_site), "exp", tool, nucleotide,
+        ]
+
+        with open(final_df_path, 'a', newline='') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(row)
+        print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
+
 
 def sort_df(orig_path, file_name):
     # Read the CSV file into a DataFrame
