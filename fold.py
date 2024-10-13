@@ -403,9 +403,9 @@ def create_final_table_structure():
     return df
 
 def united_main():
-    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/969-40000.bed"
+    bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/around_980.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/969-40000_no_multi/"
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/around_980_no_multi/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
     #nohup python fold.py > "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/105501_106000/105501-106000_output.txt" &
