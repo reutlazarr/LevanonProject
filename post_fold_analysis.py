@@ -4,22 +4,23 @@ import pandas as pd
 
 # the function will take the original numbering and change it to match the new numbering of the coloring software
 def ReNumber_the_sequence(start, end, location_of_site, strand):
-    # start = 3000, end = 4000, loc = 3200
-    # delta = start - new_start = 3000 - 1 = 2999
-    # new_loc = 3200 - 2999 = 201 = delta
-    # the correct one : new_loc = loc - start = 3200 - 300 = 200
     start = round(start)
     end = round(end)
     new_start = 1
     new_end = end - start + 1
-    delta = start
-    new_location_of_site = location_of_site - delta 
 
-    if strand == "-":
-        # converted_start_first_strand = end - start_first_strand
-        new_location_of_site = new_end - new_location_of_site - 1
-    print("new location of site:" , new_location_of_site)
-    return (new_start, new_end, new_location_of_site, delta)
+    if strand == "+":
+        delta = start
+        new_location_of_site = location_of_site - delta
+    elif strand == "-":
+        delta = end
+        new_location_of_site = delta - location_of_site
+    else:
+        raise ValueError(f"Invalid strand value: {strand}")
+
+    print("new location of site:", new_location_of_site)
+    return new_start, new_end, new_location_of_site, delta
+
 
 
 def parse_st_file(st_file, new_location_of_site):

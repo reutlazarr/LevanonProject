@@ -275,7 +275,7 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
         with open(no_segment_df_path, 'a', newline='') as csvfile2:
             csvwriter2 = csv.writer(csvfile2)
             csvwriter2.writerow(no_segment_row)
-            return
+        return
 
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
@@ -287,35 +287,46 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
     tools_list = ["ratio_based_tool", "default_tool", "max_distance_tool"]
 
     for tool in tools_list:
-        start, end, st_path, nucleotide  = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
-       
+        start, end, st_path, nucleotide = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
+
         if start is None or end is None or st_path is None or nucleotide is None:
             no_segment_row = [int(location_of_site), tool, "st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"]
             with open(no_segment_df_path, 'a', newline='') as csvfile2:
                 csvwriter2 = csv.writer(csvfile2)
                 csvwriter2.writerow(no_segment_row)
-                continue
-        
+            continue
+
+        # Extract the genomic segment
         result = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
         if result is not None:
-            converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand)     
+            converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = result
+            
+            # Check if any of the coordinates are None
+            if None in result:
+                no_segment_row = [int(location_of_site), tool, "one of the site's conversions to DNA is None"]
+                with open(no_segment_df_path, 'a', newline='') as csvfile2:
+                    csvwriter2 = csv.writer(csvfile2)
+                    csvwriter2.writerow(no_segment_row)
+                continue  # Skip to the next tool if any coordinates are invalid
+
             # Prepare the row to write
             row = [
                 chr, int(converted_start_first_strand), int(converted_end_first_strand),
                 int(converted_start_second_strand), int(converted_end_second_strand),
                 strand, int(location_of_site), "exp", tool, nucleotide,
             ]
-            
+
             with open(final_df_path, 'a', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile)
                 csvwriter.writerow(row)
             print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
         else:
-            # added 0910
-            no_segment_row = [int(location_of_site), tool, "one of the sites conversions to DNA is None"]
+            # If the result is None, append a failure to no_segment_df
+            no_segment_row = [int(location_of_site), tool, "segment extraction failed"]
             with open(no_segment_df_path, 'a', newline='') as csvfile2:
                 csvwriter2 = csv.writer(csvfile2)
                 csvwriter2.writerow(no_segment_row)
+
 
     
 # def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method, nucleotide):
