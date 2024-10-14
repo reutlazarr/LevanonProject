@@ -91,7 +91,7 @@ def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
 
 # create different kind of files
 # the shape file is now a default one 
-def create_files(location_of_site, tool_type, tool_dir, new_location_of_site):
+def create_files(location_of_site, tool_type, tool_dir, new_location_of_site, strand):
     try:
         # Create path to ct file inside the relevant directory
         ct_file_name = f'{location_of_site}_{tool_type}_ct_file.ct'
@@ -103,9 +103,14 @@ def create_files(location_of_site, tool_type, tool_dir, new_location_of_site):
 
         try:
             with open(shape_file_path, 'w') as shape_file:
+                if strand == "+":
                 # Write only the editing site position with the score
                 # 0.5 is the color of the headline
-                shape_file.write(f"{new_location_of_site} 0.5\n")
+                # shape file starts from 1 rather than from 0
+                    shape_file.write(f"{new_location_of_site + 1} 0.5\n")
+                else:
+                    # strand is minus
+                    shape_file.write(f"{new_location_of_site - 1} 0.5\n")
             print(f"Shape file created for editing site: {shape_file_path}")
         except Exception as e:
             print(f"Error in create_shape_file_for_editing_site: {e}")
@@ -135,6 +140,7 @@ def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_
     try:
         with open(shape_file_path, 'w') as shape_file:
             # Write only the editing site position with the score
+            print(f"$$$$ editing site position written to shape file is {editing_site_position}")
             shape_file.write(f"{editing_site_position} {score}\n")
         print(f"Shape file created for editing site: {shape_file_path}")
     except Exception as e:
@@ -155,7 +161,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     new_start, new_end, new_location_of_site, delta = post_fold.ReNumber_the_sequence(start, end, location_of_site, strand)
     print(f"DELTA in common part of tool: {delta}")
     # Create empty files
-    ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool, tool_dir, new_location_of_site)
+    ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool, tool_dir, new_location_of_site, strand)
     gr = genome_reader(genome_path)
     print("start: ", start, "end: ", end)
     unconverted_seq = gr.get_fasta(chr, int(start-1), int(end-1))
@@ -165,12 +171,13 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
     # print("first", seq_converted)
     # add reverse complement  (-)
-    if strand == "-":
+    if 1 <= new_location_of_site < len(seq_converted) and strand == "-":
         print("strand is minus!!")
         seq_converted = blast.reverse_complement_rna(seq_converted)
+        nucleotide = seq_converted[new_location_of_site - 1]
         # print("seq converted is:", seq_converted)
     # Check if new_location_of_site is within the bounds of the sequence
-    if 1 <= new_location_of_site < len(seq_converted):
+    if 1 <= new_location_of_site < len(seq_converted) and strand == "+":
         nucleotide = seq_converted[new_location_of_site]
     else:
         print("location of site is not in the seq converted")
@@ -381,7 +388,7 @@ def create_final_table_structure():
 def united_main():
     bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/around_980.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/around_980_corrected/"
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/around_980_hhh/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
     #nohup python fold.py > "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/105501_106000/105501-106000_output.txt" &
