@@ -291,8 +291,10 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
 
         # Extract the genomic segment
         result = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
+        print(f"SSSSSSSSSSSSSSSSSS {result}")
 
         if result is None:
+            print("RESULT IS NONE")
             # If the result is None, append a failure to no_segment_df
             no_segment_row = [int(location_of_site), tool, "segment extraction failed"]
             with open(no_segment_df_path, 'a', newline='') as csvfile2:
@@ -300,21 +302,21 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
                 csvwriter2.writerow(no_segment_row)
             continue
 
-        # Unpack the result, since we know they are either all valid or all None
-        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = result
+        else:
+            # Unpack the result, since we know they are either all valid or all None
+            converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = result
 
-        # Prepare the row to write
-        row = [
-            chr, int(converted_start_first_strand), int(converted_end_first_strand),
-            int(converted_start_second_strand), int(converted_end_second_strand),
-            strand, int(location_of_site), "exp", tool, nucleotide,
-        ]
+            # Prepare the row to write
+            row = [
+                chr, int(converted_start_first_strand), int(converted_end_first_strand),
+                int(converted_start_second_strand), int(converted_end_second_strand),
+                strand, int(location_of_site), "exp", tool, nucleotide,
+            ]
 
-        with open(final_df_path, 'a', newline='') as csvfile:
-            csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(row)
-        print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
-
+            with open(final_df_path, 'a', newline='') as csvfile:
+                csvwriter = csv.writer(csvfile)
+                csvwriter.writerow(row)
+            print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
 
 def sort_df(orig_path, file_name):
     # Read the CSV file into a DataFrame
