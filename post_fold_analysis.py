@@ -122,6 +122,7 @@ def extract_segment(start, end, st_path, location_of_site, strand):
     # coords of the location of site's segment
     
     start_first_strand, end_first_strand, start_second_strand, end_second_strand = parse_st_file(st_path, new_location_of_site)
+    print(f"@@ strands after psrse_st_file {start_first_strand}, {end_first_strand}, {start_second_strand}, {end_second_strand}")
     if start_first_strand is None or end_first_strand is None or start_second_strand is None or end_second_strand is None:
         print("Error: parse_st_file fails since the editing site is not in a segment")
         return None
@@ -144,4 +145,3 @@ def extract_segment(start, end, st_path, location_of_site, strand):
     else:
         print("DDDDD result is None")
         return None
-

@@ -39,16 +39,11 @@ def run_bpRNA(path_to_dbn_file, site_dir, st_path):
 
 
 def create_bpRNA_path(path_to_dbn_file, site_dir):
-    # Debug print statements
-    print(f"Processing file: {path_to_dbn_file}")
-    print(f"Saving to directory: {site_dir}")
-
-    # Extract the file name without extension
-    file_name = os.path.splitext(os.path.basename(path_to_dbn_file))[0]
-    st_path = os.path.join(site_dir, f"{file_name}.st")
-    
-    print(f"Generated .st path: {st_path}")
-    
+    # create out file name
+    out_f = path_to_dbn_file.split("/")[-1]
+    # get rid of the dbn suffix
+    out_f = remove_suffix(out_f, os.path.splitext(out_f)[1]) + ".st"
+    st_path = site_dir + out_f
     return st_path
 
 
@@ -57,9 +52,11 @@ def remove_suffix(input_string, suffix):
         return input_string[:-len(suffix)]
     return input_string
 
+
 def convert_dbn_to_ct(dbn_file, ct_file):
     path_to_sh_draw = "/private10/Projects/Reut_Shelly/our_tool/data/draw_RNA_structures/run_dot_to_ct.sh"
     subprocess.run([path_to_sh_draw, dbn_file, ct_file], capture_output=True, text=True)
+
 
 def check_bed_file_validity(line):
     new_line = line.split()
@@ -89,6 +86,7 @@ def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
     print("run completed")
     return path_to_mxfold2_result
 
+
 # create different kind of files
 # the shape file is now a default one 
 def create_files(location_of_site, tool_type, tool_dir, new_location_of_site, strand):
@@ -107,10 +105,12 @@ def create_files(location_of_site, tool_type, tool_dir, new_location_of_site, st
                 # Write only the editing site position with the score
                 # 0.5 is the color of the headline
                 # shape file starts from 1 rather than from 0
+                    # nucleotide = seq_converted[new_location_of_site]
                     shape_file.write(f"{new_location_of_site + 1} 0.5\n")
                 else:
                     # strand is minus
-                    shape_file.write(f"{new_location_of_site - 1} 0.5\n")
+                    # nucleotide = seq_converted[new_location_of_site + 1]
+                    shape_file.write(f"{new_location_of_site + 2} 0.5\n")
             print(f"Shape file created for editing site: {shape_file_path}")
         except Exception as e:
             print(f"Error in create_shape_file_for_editing_site: {e}")
@@ -133,6 +133,7 @@ def create_files(location_of_site, tool_type, tool_dir, new_location_of_site, st
         print(f"Error in create_files: {e}")
         return None, None, None, None
 
+
 def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_site_position, score):
     shape_file_name = f'{location_of_site}_{tool_type}.shape'
     shape_file_path = os.path.join(tool_dir, shape_file_name)
@@ -147,6 +148,7 @@ def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_
         print(f"Error in create_shape_file_for_editing_site: {e}")
 
     return shape_file_path
+
 
 # this part is shared by the four different tools
 def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, tool_dir, strand):
@@ -174,10 +176,11 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     if 1 <= new_location_of_site < len(seq_converted) and strand == "-":
         print("strand is minus!!")
         seq_converted = blast.reverse_complement_rna(seq_converted)
-        nucleotide = seq_converted[new_location_of_site - 1]
+        nucleotide = seq_converted[new_location_of_site + 1]
+        print(nucleotide)
         # print("seq converted is:", seq_converted)
     # Check if new_location_of_site is within the bounds of the sequence
-    if 1 <= new_location_of_site < len(seq_converted) and strand == "+":
+    elif 1 <= new_location_of_site < len(seq_converted) and strand == "+":
         nucleotide = seq_converted[new_location_of_site]
     else:
         print("location of site is not in the seq converted")
@@ -205,6 +208,7 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     print(f"after bpRNA by {tool} in {location_of_site}")
     return st_path, nucleotide
 
+
 def write_to_fasta_file(location_of_site, sequence, chr, tool_type, site_dir, distance):
     sequence_path_name = f"{location_of_site}_{tool_type}.fa"
     sequence_path = f"{site_dir}{sequence_path_name}"
@@ -230,6 +234,7 @@ def convert_dna_to_formal_format(dna):
             new_dna += '\n'
     return new_dna
 
+
 # create directory for each tool
 def create_directory_by_tool_type(site_dir_path, tool_type):
     # site_dir = f"/private10/Projects/Reut_Shelly/our_tool/data/site_of_interest_analysis/{chr}_{location_of_site}/"
@@ -241,6 +246,7 @@ def create_directory_by_tool_type(site_dir_path, tool_type):
         os.mkdir(tool_type_dir)
         return tool_type_dir
     else : return tool_type_dir
+
 
 def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand):
     relevant_function = eval(f"{tool}.get_output_{tool}")
@@ -262,6 +268,7 @@ def run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_di
         if st_path is None or nucleotide is None:
             return None, None, None, None
     return start_point, end_point, st_path, nucleotide
+
 
 def open_json_file_for_reading(file):
     with open (file, 'r') as sites_from_genome_dict:
@@ -388,7 +395,7 @@ def create_final_table_structure():
 def united_main():
     bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/around_980.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/around_980_final/"
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/around_980_5/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
     #nohup python fold.py > "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/105501_106000/105501-106000_output.txt" &
