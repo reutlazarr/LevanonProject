@@ -37,13 +37,6 @@ def run_bpRNA(path_to_dbn_file, site_dir, st_path):
         print(f"Output .st file is empty. Something went wrong with bpRNA for file: {path_to_dbn_file}")
     return st_path
 
-# def create_bpRNA_path(path_to_dbn_file, site_dir):
-#     # create out file name
-#     out_f = path_to_dbn_file.split("/")[-1]
-#     # get rid of the dbn suffix
-#     out_f = remove_suffix(out_f, os.path.splitext(out_f)[1]) + ".st"
-#     st_path = site_dir + out_f
-#     return st_path
 
 def create_bpRNA_path(path_to_dbn_file, site_dir):
     # Debug print statements
@@ -98,7 +91,7 @@ def run_mxfold2(fasta_seq_to_fold, path_to_mxfold2_result):
 
 # create different kind of files
 # the shape file is now a default one 
-def create_files(location_of_site, tool_type, tool_dir, new_location_of_site):
+def create_files(location_of_site, tool_type, tool_dir, new_location_of_site, strand):
     try:
         # Create path to ct file inside the relevant directory
         ct_file_name = f'{location_of_site}_{tool_type}_ct_file.ct'
@@ -110,9 +103,14 @@ def create_files(location_of_site, tool_type, tool_dir, new_location_of_site):
 
         try:
             with open(shape_file_path, 'w') as shape_file:
+                if strand == "+":
                 # Write only the editing site position with the score
                 # 0.5 is the color of the headline
-                shape_file.write(f"{new_location_of_site} 0.5\n")
+                # shape file starts from 1 rather than from 0
+                    shape_file.write(f"{new_location_of_site + 1} 0.5\n")
+                else:
+                    # strand is minus
+                    shape_file.write(f"{new_location_of_site - 1} 0.5\n")
             print(f"Shape file created for editing site: {shape_file_path}")
         except Exception as e:
             print(f"Error in create_shape_file_for_editing_site: {e}")
@@ -142,6 +140,7 @@ def create_shape_file_after_fold(location_of_site, tool_type, tool_dir, editing_
     try:
         with open(shape_file_path, 'w') as shape_file:
             # Write only the editing site position with the score
+            print(f"$$$$ editing site position written to shape file is {editing_site_position}")
             shape_file.write(f"{editing_site_position} {score}\n")
         print(f"Shape file created for editing site: {shape_file_path}")
     except Exception as e:
@@ -160,9 +159,9 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
         return None, None
     # still genomics rather than RNA
     new_start, new_end, new_location_of_site, delta = post_fold.ReNumber_the_sequence(start, end, location_of_site, strand)
-
+    print(f"DELTA in common part of tool: {delta}")
     # Create empty files
-    ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool, tool_dir, new_location_of_site)
+    ct_file_path, shape_file_path, svg_file_path, path_to_mxfold2_result = create_files(location_of_site, tool, tool_dir, new_location_of_site, strand)
     gr = genome_reader(genome_path)
     print("start: ", start, "end: ", end)
     unconverted_seq = gr.get_fasta(chr, int(start-1), int(end-1))
@@ -172,12 +171,13 @@ def common_part_of_tool(chr, start, end, location_of_site, genome_path, tool, to
     seq_converted = (blast.transcribe_dna_to_rna(unconverted_seq)).upper()
     # print("first", seq_converted)
     # add reverse complement  (-)
-    if strand == "-":
+    if 1 <= new_location_of_site < len(seq_converted) and strand == "-":
         print("strand is minus!!")
         seq_converted = blast.reverse_complement_rna(seq_converted)
+        nucleotide = seq_converted[new_location_of_site - 1]
         # print("seq converted is:", seq_converted)
     # Check if new_location_of_site is within the bounds of the sequence
-    if 1 <= new_location_of_site < len(seq_converted):
+    if 1 <= new_location_of_site < len(seq_converted) and strand == "+":
         nucleotide = seq_converted[new_location_of_site]
     else:
         print("location of site is not in the seq converted")
@@ -271,11 +271,11 @@ def open_json_file_for_reading(file):
 
 def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site_dir):
     if not check_bed_file_validity(line):
-        no_segment_row = [int(location_of_site), tool, "Invalid BED file line: {line}"]
+        no_segment_row = [int(location_of_site), tool, f"Invalid BED file line: {line}"]
         with open(no_segment_df_path, 'a', newline='') as csvfile2:
             csvwriter2 = csv.writer(csvfile2)
             csvwriter2.writerow(no_segment_row)
-            return
+        return
 
     fields = line.strip().split('\t')
     dis_list, location_of_site, chr, strand = l_dis.pipline(fields)
@@ -287,60 +287,43 @@ def process_line(line, genome_path, final_df_path, no_segment_df_path, orig_site
     tools_list = ["ratio_based_tool", "default_tool", "max_distance_tool"]
 
     for tool in tools_list:
-        start, end, st_path, nucleotide  = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
-       
+        start, end, st_path, nucleotide = run_by_tool_type(tool, dis_list, location_of_site, chr, genome_path, site_dir, strand)
+
         if start is None or end is None or st_path is None or nucleotide is None:
             no_segment_row = [int(location_of_site), tool, "st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"]
             with open(no_segment_df_path, 'a', newline='') as csvfile2:
                 csvwriter2 = csv.writer(csvfile2)
                 csvwriter2.writerow(no_segment_row)
-                continue
-        
-        converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
-        
-        if (converted_start_first_strand is not None and 
-            converted_end_first_strand is not None and 
-            converted_start_second_strand is not None and 
-            converted_end_second_strand is not None):
-            
+            continue
+
+        # Extract the genomic segment
+        result = post_fold.extract_segment(start, end, st_path, location_of_site, strand)
+        print(f"SSSSSSSSSSSSSSSSSS {result}")
+
+        if result is None:
+            print("RESULT IS NONE")
+            # If the result is None, append a failure to no_segment_df
+            no_segment_row = [int(location_of_site), tool, "segment extraction failed"]
+            with open(no_segment_df_path, 'a', newline='') as csvfile2:
+                csvwriter2 = csv.writer(csvfile2)
+                csvwriter2.writerow(no_segment_row)
+            continue
+
+        else:
+            # Unpack the result, since we know they are either all valid or all None
+            converted_start_first_strand, converted_end_first_strand, converted_start_second_strand, converted_end_second_strand = result
+
             # Prepare the row to write
             row = [
                 chr, int(converted_start_first_strand), int(converted_end_first_strand),
                 int(converted_start_second_strand), int(converted_end_second_strand),
                 strand, int(location_of_site), "exp", tool, nucleotide,
             ]
-            
+
             with open(final_df_path, 'a', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile)
                 csvwriter.writerow(row)
             print(f"Row appended to {final_df_path} for location {location_of_site} using tool {tool}")
-        else:
-            # added 0910
-            no_segment_row = [int(location_of_site), tool, "one of the sites conversions to DNA is None"]
-            with open(no_segment_df_path, 'a', newline='') as csvfile2:
-                csvwriter2 = csv.writer(csvfile2)
-                csvwriter2.writerow(no_segment_row)
-
-    
-# def add_line_to_final_df(final_df, chr, start_first_strand, end_first_strand, start_second_strand, end_second_strand, strand, editing_site_location, exp_level, method, nucleotide):
-#     # Create a new row as a DataFrame
-#     new_row = pd.DataFrame({
-#         'chr': [chr],
-#         'start_first_strand': [start_first_strand],
-#         'end_first_strand': [end_first_strand],
-#         'start_second_strand': [start_second_strand],
-#         'end_second_strand': [end_second_strand],
-#         'strand': [strand],
-#         'editing_site_location': [editing_site_location],
-#         'exp_level': [exp_level],
-#         'method': [method],
-#         'editing_base': [nucleotide]
-#     })
-    
-#     # Append the new row to the existing DataFrame
-#     final_df = pd.concat([final_df, new_row], ignore_index=True)
-    
-#     return final_df
 
 def sort_df(orig_path, file_name):
     # Read the CSV file into a DataFrame
@@ -405,7 +388,7 @@ def create_final_table_structure():
 def united_main():
     bed_file_path = "/private10/Projects/Reut_Shelly/our_tool/data/convert_sites/sites_for_analysis/around_980.bed"
     genome_path = "/private/dropbox/Genomes/Human/hg38/hg38.fa"
-    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/around_980_no_multi/"
+    orig_site_dir = "/private10/Projects/Reut_Shelly/our_tool/data/around_980_final/"
     final_df_path = os.path.join(orig_site_dir, "final_df.csv")
     no_segment_df_path = os.path.join(orig_site_dir, "no_segment_df.csv")
     #nohup python fold.py > "/private10/Projects/Reut_Shelly/our_tool/data/division_to_500/105501_106000/105501-106000_output.txt" &

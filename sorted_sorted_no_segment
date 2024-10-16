@@ -1,329 +1,43 @@
 editing_site_location,method,error
-168174,max_distance_tool,st_path is None
-168174,ratio_based_tool,st_path is None
-284803,max_distance_tool,st_path is None
-284964,max_distance_tool,st_path is None
-285064,max_distance_tool,st_path is None
-308074,max_distance_tool,st_path is None
-310164,max_distance_tool,st_path is None
-312104,max_distance_tool,st_path is None
-314189,max_distance_tool,st_path is None
-345828,max_distance_tool,st_path is None
-345903,max_distance_tool,st_path is None
-349041,max_distance_tool,st_path is None
-473381,ratio_based_tool,st_path is None
-473381,max_distance_tool,st_path is None
-668807,ratio_based_tool,st_path is None
-668807,max_distance_tool,st_path is None
-691277,max_distance_tool,st_path is None
-692929,max_distance_tool,st_path is None
-692942,max_distance_tool,st_path is None
-694299,ratio_based_tool,st_path is None
-694299,max_distance_tool,st_path is None
-714572,ratio_based_tool,st_path is None
-714572,max_distance_tool,st_path is None
-756613,ratio_based_tool,st_path is None
-756613,max_distance_tool,st_path is None
-761397,max_distance_tool,st_path is None
-761397,ratio_based_tool,st_path is None
-766513,ratio_based_tool,st_path is None
-766513,max_distance_tool,st_path is None
-782843,max_distance_tool,st_path is None
-784332,max_distance_tool,st_path is None
-872545,ratio_based_tool,st_path is None
-877003,ratio_based_tool,st_path is None
-1029791,max_distance_tool,st_path is None
-1029791,ratio_based_tool,st_path is None
-1034608,max_distance_tool,st_path is None
-1034611,max_distance_tool,st_path is None
-1034874,max_distance_tool,st_path is None
-1035578,max_distance_tool,st_path is None
-1035668,max_distance_tool,st_path is None
-1035681,max_distance_tool,st_path is None
-1035991,max_distance_tool,st_path is None
-1036186,max_distance_tool,st_path is None
-1054078,ratio_based_tool,st_path is None
-1054078,max_distance_tool,st_path is None
-1062985,max_distance_tool,st_path is None
-1062999,max_distance_tool,st_path is None
-1064302,max_distance_tool,st_path is None
-1064383,max_distance_tool,st_path is None
-1065554,max_distance_tool,st_path is None
-1176614,ratio_based_tool,st_path is None
-1176614,max_distance_tool,st_path is None
-1345583,ratio_based_tool,st_path is None
-1345583,max_distance_tool,st_path is None
-1466991,ratio_based_tool,st_path is None
-1466991,max_distance_tool,st_path is None
-1471711,max_distance_tool,st_path is None
-1472177,max_distance_tool,st_path is None
-1472234,max_distance_tool,st_path is None
-1472282,max_distance_tool,st_path is None
-1472294,max_distance_tool,st_path is None
-1472307,max_distance_tool,st_path is None
-1472652,max_distance_tool,st_path is None
-1473132,max_distance_tool,st_path is None
-1486105,ratio_based_tool,st_path is None
-1486105,max_distance_tool,st_path is None
-1807865,ratio_based_tool,st_path is None
-1812088,ratio_based_tool,st_path is None
-1878509,ratio_based_tool,st_path is None
-1878509,max_distance_tool,st_path is None
-2752852,ratio_based_tool,st_path is None
-2752852,max_distance_tool,st_path is None
-5281605,ratio_based_tool,st_path is None
-5281605,max_distance_tool,st_path is None
-6622463,ratio_based_tool,st_path is None
-6622463,max_distance_tool,st_path is None
-6658715,ratio_based_tool,st_path is None
-6658715,max_distance_tool,st_path is None
-6668851,max_distance_tool,st_path is None
-6670948,max_distance_tool,st_path is None
-6670959,max_distance_tool,st_path is None
-6671110,max_distance_tool,st_path is None
-6671190,max_distance_tool,st_path is None
-6671210,max_distance_tool,st_path is None
-6671223,max_distance_tool,st_path is None
-6671228,max_distance_tool,st_path is None
-6673333,max_distance_tool,st_path is None
-6673342,max_distance_tool,st_path is None
-6673358,max_distance_tool,st_path is None
-6673370,max_distance_tool,st_path is None
-6673379,max_distance_tool,st_path is None
-6673381,max_distance_tool,st_path is None
-6673384,max_distance_tool,st_path is None
-6673392,max_distance_tool,st_path is None
-6673398,max_distance_tool,st_path is None
-6673440,max_distance_tool,st_path is None
-6673459,max_distance_tool,st_path is None
-6673463,max_distance_tool,st_path is None
-6673490,max_distance_tool,st_path is None
-6673491,max_distance_tool,st_path is None
-6673492,max_distance_tool,st_path is None
-6673512,max_distance_tool,st_path is None
-6673579,max_distance_tool,st_path is None
-6673592,max_distance_tool,st_path is None
-6673627,max_distance_tool,st_path is None
-6673629,max_distance_tool,st_path is None
-6673639,max_distance_tool,st_path is None
-6673641,max_distance_tool,st_path is None
-6673655,max_distance_tool,st_path is None
-6673656,max_distance_tool,st_path is None
-6673664,max_distance_tool,st_path is None
-6673666,max_distance_tool,st_path is None
-6673673,max_distance_tool,st_path is None
-6673758,max_distance_tool,st_path is None
-6704228,max_distance_tool,st_path is None
-6704228,ratio_based_tool,st_path is None
-7417465,ratio_based_tool,st_path is None
-7417465,max_distance_tool,st_path is None
-7589989,ratio_based_tool,st_path is None
-7589989,max_distance_tool,st_path is None
-7825008,max_distance_tool,st_path is None
-7825045,max_distance_tool,st_path is None
-7825047,max_distance_tool,st_path is None
-7825066,max_distance_tool,st_path is None
-7825084,max_distance_tool,st_path is None
-7825105,max_distance_tool,st_path is None
-7825126,max_distance_tool,st_path is None
-7825128,max_distance_tool,st_path is None
-7825144,max_distance_tool,st_path is None
-7825147,max_distance_tool,st_path is None
-7825168,max_distance_tool,st_path is None
-7825273,max_distance_tool,st_path is None
-7839009,max_distance_tool,st_path is None
-7839236,max_distance_tool,st_path is None
-7845295,max_distance_tool,st_path is None
-7845295,ratio_based_tool,st_path is None
-8858092,ratio_based_tool,st_path is None
-8858092,max_distance_tool,st_path is None
-10267347,ratio_based_tool,st_path is None
-10267347,max_distance_tool,st_path is None
-10276941,ratio_based_tool,st_path is None
-10276941,max_distance_tool,st_path is None
-10513378,ratio_based_tool,st_path is None
-10513378,max_distance_tool,st_path is None
-10621856,max_distance_tool,st_path is None
-10621856,ratio_based_tool,st_path is None
-10650969,max_distance_tool,st_path is None
-10650969,ratio_based_tool,st_path is None
-10679850,max_distance_tool,st_path is None
-10679850,ratio_based_tool,st_path is None
-10694461,max_distance_tool,st_path is None
-10694474,max_distance_tool,st_path is None
-10694486,max_distance_tool,st_path is None
-10694501,max_distance_tool,st_path is None
-10694502,max_distance_tool,st_path is None
-10694557,max_distance_tool,st_path is None
-10694856,max_distance_tool,st_path is None
-10694868,max_distance_tool,st_path is None
-183985614,max_distance_tool,st_path is None
-183985620,max_distance_tool,st_path is None
-183985654,max_distance_tool,st_path is None
-183986119,max_distance_tool,st_path is None
-183986120,max_distance_tool,st_path is None
-183986133,max_distance_tool,st_path is None
-183986150,max_distance_tool,st_path is None
-183986171,max_distance_tool,st_path is None
-183986179,max_distance_tool,st_path is None
-183986181,max_distance_tool,st_path is None
-183986182,max_distance_tool,st_path is None
-183986184,max_distance_tool,st_path is None
-183986185,max_distance_tool,st_path is None
-183986189,max_distance_tool,st_path is None
-183986193,max_distance_tool,st_path is None
-183986195,max_distance_tool,st_path is None
-183986196,max_distance_tool,st_path is None
-183986203,max_distance_tool,st_path is None
-183986211,max_distance_tool,st_path is None
-183986251,max_distance_tool,st_path is None
-183986274,max_distance_tool,st_path is None
-184015032,max_distance_tool,st_path is None
-184015032,ratio_based_tool,st_path is None
-184095275,max_distance_tool,st_path is None
-184095275,ratio_based_tool,st_path is None
-184506010,max_distance_tool,st_path is None
-184506010,ratio_based_tool,st_path is None
-184706861,ratio_based_tool,st_path is None
-184773432,max_distance_tool,st_path is None
-184776104,max_distance_tool,st_path is None
-184780649,max_distance_tool,st_path is None
-184780867,max_distance_tool,st_path is None
-184782848,max_distance_tool,st_path is None
-184782958,max_distance_tool,st_path is None
-184783117,max_distance_tool,st_path is None
-184783441,max_distance_tool,st_path is None
-184783585,max_distance_tool,st_path is None
-184784126,max_distance_tool,st_path is None
-184799903,max_distance_tool,st_path is None
-184800190,max_distance_tool,st_path is None
-184800236,max_distance_tool,st_path is None
-184804234,max_distance_tool,st_path is None
-184804234,ratio_based_tool,st_path is None
-184812042,ratio_based_tool,st_path is None
-184812042,max_distance_tool,st_path is None
-184817475,max_distance_tool,st_path is None
-184817494,max_distance_tool,st_path is None
-184817535,max_distance_tool,st_path is None
-184817537,max_distance_tool,st_path is None
-184817538,max_distance_tool,st_path is None
-184822242,max_distance_tool,st_path is None
-184822802,max_distance_tool,st_path is None
-184822803,max_distance_tool,st_path is None
-184822810,max_distance_tool,st_path is None
-184822813,max_distance_tool,st_path is None
-184822814,max_distance_tool,st_path is None
-184822815,max_distance_tool,st_path is None
-184822821,max_distance_tool,st_path is None
-184822823,max_distance_tool,st_path is None
-184822829,max_distance_tool,st_path is None
-184822830,max_distance_tool,st_path is None
-184822832,max_distance_tool,st_path is None
-184822847,max_distance_tool,st_path is None
-184822848,max_distance_tool,st_path is None
-184822863,max_distance_tool,st_path is None
-184822864,max_distance_tool,st_path is None
-184822867,max_distance_tool,st_path is None
-184822868,max_distance_tool,st_path is None
-184822875,max_distance_tool,st_path is None
-184822887,max_distance_tool,st_path is None
-184822888,max_distance_tool,st_path is None
-184822889,max_distance_tool,st_path is None
-184822894,max_distance_tool,st_path is None
-184822899,max_distance_tool,st_path is None
-184822907,max_distance_tool,st_path is None
-184822908,max_distance_tool,st_path is None
-184822929,max_distance_tool,st_path is None
-184822932,max_distance_tool,st_path is None
-184822944,max_distance_tool,st_path is None
-184822948,max_distance_tool,st_path is None
-184823721,max_distance_tool,st_path is None
-184823726,max_distance_tool,st_path is None
-184823732,max_distance_tool,st_path is None
-184823733,max_distance_tool,st_path is None
-184823734,max_distance_tool,st_path is None
-184823735,max_distance_tool,st_path is None
-184823761,max_distance_tool,st_path is None
-184823768,max_distance_tool,st_path is None
-184823769,max_distance_tool,st_path is None
-184823770,max_distance_tool,st_path is None
-184823774,max_distance_tool,st_path is None
-184823775,max_distance_tool,st_path is None
-184823776,max_distance_tool,st_path is None
-184823781,max_distance_tool,st_path is None
-184823792,max_distance_tool,st_path is None
-184823797,max_distance_tool,st_path is None
-184823799,max_distance_tool,st_path is None
-184823819,max_distance_tool,st_path is None
-184823821,max_distance_tool,st_path is None
-184823826,max_distance_tool,st_path is None
-184823835,max_distance_tool,st_path is None
-184823840,max_distance_tool,st_path is None
-184823844,max_distance_tool,st_path is None
-184825344,max_distance_tool,st_path is None
-185208317,ratio_based_tool,st_path is None
-185208317,max_distance_tool,st_path is None
-185313610,max_distance_tool,st_path is None
-185314073,max_distance_tool,st_path is None
-185345306,max_distance_tool,st_path is None
-185345411,max_distance_tool,st_path is None
-185366572,max_distance_tool,st_path is None
-185366583,max_distance_tool,st_path is None
-185366585,max_distance_tool,st_path is None
-185366586,max_distance_tool,st_path is None
-185366587,max_distance_tool,st_path is None
-185366588,max_distance_tool,st_path is None
-185366589,max_distance_tool,st_path is None
-185366595,max_distance_tool,st_path is None
-185366596,max_distance_tool,st_path is None
-185366662,max_distance_tool,st_path is None
-185366666,max_distance_tool,st_path is None
-185366667,max_distance_tool,st_path is None
-185366668,max_distance_tool,st_path is None
-185366763,max_distance_tool,st_path is None
-185366764,max_distance_tool,st_path is None
-185366765,max_distance_tool,st_path is None
-185366767,max_distance_tool,st_path is None
-185366768,max_distance_tool,st_path is None
-185366769,max_distance_tool,st_path is None
-185366836,max_distance_tool,st_path is None
-185366840,max_distance_tool,st_path is None
-185366845,max_distance_tool,st_path is None
-185366851,max_distance_tool,st_path is None
-185366852,max_distance_tool,st_path is None
-185366856,max_distance_tool,st_path is None
-185366862,max_distance_tool,st_path is None
-185366863,max_distance_tool,st_path is None
-185366864,max_distance_tool,st_path is None
-185369851,max_distance_tool,st_path is None
-185375241,ratio_based_tool,st_path is None
-185375241,max_distance_tool,st_path is None
-185378921,max_distance_tool,st_path is None
-185378921,ratio_based_tool,st_path is None
-185386537,ratio_based_tool,st_path is None
-185386537,max_distance_tool,st_path is None
-185386540,ratio_based_tool,st_path is None
-185386540,max_distance_tool,st_path is None
-185500197,ratio_based_tool,st_path is None
-185500197,max_distance_tool,st_path is None
-185518286,max_distance_tool,st_path is None
-185518286,ratio_based_tool,st_path is None
-185528387,max_distance_tool,st_path is None
-185529287,max_distance_tool,st_path is None
-185529289,max_distance_tool,st_path is None
-185529290,max_distance_tool,st_path is None
-185534425,max_distance_tool,st_path is None
-185535025,max_distance_tool,st_path is None
-185595386,max_distance_tool,st_path is None
-185596320,max_distance_tool,st_path is None
-185645010,max_distance_tool,st_path is None
-185646380,max_distance_tool,st_path is None
-185646382,max_distance_tool,st_path is None
-185672237,max_distance_tool,st_path is None
-185672237,ratio_based_tool,st_path is None
-186191927,max_distance_tool,st_path is None
-186191927,ratio_based_tool,st_path is None
-186277663,max_distance_tool,st_path is None
-186277663,ratio_based_tool,st_path is None
-186290298,ratio_based_tool,st_path is None
-186290298,max_distance_tool,st_path is None
+12573909,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12573909,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12573909,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12573916,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12573916,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12573916,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12574897,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12574897,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12574897,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12576065,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12576065,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12576065,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12576070,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12576070,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12576070,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12576074,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12576074,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12576074,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12577455,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12577455,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12577455,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12577492,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12577492,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12577492,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12581306,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12581306,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12581306,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584679,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584679,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584679,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584734,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584734,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584734,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584812,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584812,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584812,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584827,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584827,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12584827,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12589638,default_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12589638,ratio_based_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
+12589638,max_distance_tool,"st_path is None or start, end are 0, or seq length exceeds 5600, nuc is None"
