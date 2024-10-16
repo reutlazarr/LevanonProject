@@ -109,8 +109,6 @@ def convert_to_genomic_coords(start_first_strand, end_first_strand, start_second
         converted_end_second_strand,
     )
 
-
-
 def extract_segment(start, end, st_path, location_of_site, strand):
     if start is None or end is None:
         print("Error: Start or end is None, skipping segment extraction.")
@@ -123,10 +121,6 @@ def extract_segment(start, end, st_path, location_of_site, strand):
     
     start_first_strand, end_first_strand, start_second_strand, end_second_strand = parse_st_file(st_path, new_location_of_site)
     print(f"@@ strands after psrse_st_file {start_first_strand}, {end_first_strand}, {start_second_strand}, {end_second_strand}")
-    if start_first_strand <= new_location_of_site <= end_first_strand or start_second_strand <= new_location_of_site <= end_second_strand:
-        print("loc is IN segment right after parse_st_file")
-    else:
-        print("loc is NOT IN segment right after parse_st_file")
     if start_first_strand is None or end_first_strand is None or start_second_strand is None or end_second_strand is None:
         print("Error: parse_st_file fails since the editing site is not in a segment")
         return None
@@ -149,4 +143,3 @@ def extract_segment(start, end, st_path, location_of_site, strand):
     else:
         print("DDDDD result is None")
         return None
-
