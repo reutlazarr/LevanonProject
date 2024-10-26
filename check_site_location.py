@@ -21,4 +21,4 @@ def find_invalid_sites(csv_file_path):
         print("All sites follow the rule.")
 
 # Example usage
-find_invalid_sites("/private10/Projects/Reut_Shelly/our_tool/data/969-40000_no_multi/final_df.csv")
+find_invalid_sites("/private10/Projects/Reut_Shelly/our_tool/data/first_1000_1610/final_df.csv")
